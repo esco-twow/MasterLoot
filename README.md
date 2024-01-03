@@ -2,7 +2,7 @@
 
 ## Easy way to assign loot as ML
 
-A new Addon imported from TBC & fully redesigned & optimized.
+A new Addon imported from TBC & fully redesigned & optimized again for Weird Vibes
 
 <img src="https://preview.ibb.co/eCEjE7/Screenshot_1.png" width="68.87%">
 
