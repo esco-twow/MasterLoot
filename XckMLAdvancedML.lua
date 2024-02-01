@@ -947,17 +947,19 @@ function XckMLAdvancedLUA:OnUpdate()
 			currentCountdownPosition = 0
 		end
 		local i = self.countdownLastDisplayed - 1
+		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		while (i >= currentCountdownPosition) do
-
-			SendChatMessage(i, 'Raid')
-			-- self:Speak(i)
-			i = i - 1
-		end
+	            if (currentCountdownPosition == 10 or currentCountdownPosition == 5) then
+	                SendChatMessage(itemLink .. " " .. i .. " seconds left to roll", 'Raid')
+	            end
+	            -- self:Speak(i)
+	            i = i - 1
+	        end
 
 		self.countdownLastDisplayed = currentCountdownPosition
 		if (currentCountdownPosition <= 0) then
 			self.countdownRunning = false
-			SendChatMessage("Rolling is now Closed", 'Raid')
+			SendChatMessage(itemLink .. " Rolling is now Closed", 'Raid')
 		end	
 	end
 end
