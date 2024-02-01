@@ -113,7 +113,7 @@ if ( GetLocale() == "frFR" ) then
 		"Wartorn Plate Scrap",
 		"Hourglass Sand",
 		"Word of Thawing",
-	    "Small Dream Shard",
-	    "Dreamscale",
+	        "Small Dream Shard",
+	        "Dreamscale",
 		"Fading Dream Fragment"}
 end		
