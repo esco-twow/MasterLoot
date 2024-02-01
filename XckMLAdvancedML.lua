@@ -20,6 +20,7 @@ XckMLAdvancedLUA = {frame = nil,
 	aq_zg_items_guyDropdownFrame = XckMLAdvancedMainSettings_Selectaq_zg_items_Guy,
 	qualityListDropdownFrame = XckMLAdvancedMainSettings_SelectQualityList,
 	RollorNeedDropdownFrame = XckMLAdvancedMainSettings_SelectRollOrNeed,
+	CountDownTimeFrame = XckMLAdvancedMainSettings_CountdownTime,
 	currentItemSelected= 0,
 	LootPrioText = "Start Your Engines",
 	dropannounced = nil,
@@ -56,21 +57,15 @@ MasterLootTable = {lootCount = 0, loot = {}}
 MasterLootRolls = {rollCount = 0, rolls = {}}
 
 ----- INIT DEBUG COMMAND INGAME
-SLASH_XCKMLA1, SLASH_XCKMLA2 = "/XckMLAdvanced", "/Xckmla"
+SLASH_XCKMLA1, SLASH_XCKMLA2, SLASH_XCKMLA3 = "/XckMLAdvanced", "/Xckmla", "/loot"
+
 SlashCmdList["XCKMLA"] = function(msg)
-	local command = { }
-	for c in string.gfind(msg, "[^ ]+") do
-		table.insert(command, string.lower(c))
-	end
-	if command[1] == "reset" then
-		MasterLootRolls:ClearRollList()
-		XckMLAdvancedLUA:Print("|cfffbb034|r|cffead454"..XCKMLA_ResetRollNeedList)
-		elseif command[1] =="info" then
-		XckMLAdvancedLUA:Print(XCKMLA_InfoAboutMessage)
-		elseif command[1] =="rand" then
-		XckMLAdvancedLUA:RandomizePlayer()
-		else
-		XckMLAdvancedLUA:Print("|cfffbb034|r|cffead454"..XCKMLA_WelcomeMessage)
+	if(XckMLAdvancedMainSettings:IsShown() == nil) then
+		XckMLAdvancedMainSettings:EnableMouse(true)
+		XckMLAdvancedMainSettings:Show()
+	else
+		XckMLAdvancedMainSettings:EnableMouse(false)
+		XckMLAdvancedMainSettings:Hide()
 	end
 end
 
@@ -85,7 +80,7 @@ end
 -- OnLoad Event
 function XckMLAdvancedLUA:OnLoad(frame)
 	self.frame = frame
-	
+
 	self.frame:RegisterEvent("LOOT_OPENED")
 	self.frame:RegisterEvent("LOOT_CLOSED")
 	self.frame:RegisterEvent("CHAT_MSG_SYSTEM")
@@ -125,13 +120,12 @@ function XckMLAdvancedLUA:OnLoad(frame)
 	
 	self:InitButtonLootAllItems()
 	self:InitAllLootFrameFrame()
-	
+
 	LootFrame:SetMovable(1)
 	LootFrame:SetScript("OnMouseUp", function () this:StopMovingOrSizing() end)
 	LootFrame:SetScript("OnMouseDown", function () this:StartMoving() end)
-	
-	self:Print("Xckbucl MasterLoot Advanced |cff20b2aaFully Loaded")
-	
+
+	self:Print("Xckbucl MasterLoot Advanced |cff20b2aaFully Loaded |cff49C0C0/loot |rto edit settings")
 end
 
 -- OnEvent Event
@@ -183,7 +177,8 @@ function XckMLAdvancedLUA:SaveSettings()
 	XckMLAdvancedLUA.aq_zg_items_guy = UIDropDownMenu_GetText(XckMLAdvancedLUA.aq_zg_items_guyDropdownFrame)
 	XckMLAdvancedLUA.qualityListSet = UIDropDownMenu_GetText(XckMLAdvancedLUA.qualityListDropdownFrame)
 	XckMLAdvancedLUA.RollorNeed = UIDropDownMenu_GetText(XckMLAdvancedLUA.RollorNeedDropdownFrame)
-	
+	XckMLAdvancedLUA.countdownStartTime = XckMLAdvancedLUA.CountDownTimeFrame:GetValue()
+
 	DEFAULT_CHAT_FRAME:AddMessage(XCKMLA_WelcomeMessage)
 	DEFAULT_CHAT_FRAME:AddMessage(XCKMLA_SavedSettingsSuccessSaved)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerDE..self:GetHexClassColor(XckMLAdvancedLUA.PDez) .. XckMLAdvancedLUA.PDez.."|r|cffead454")
@@ -192,6 +187,7 @@ function XckMLAdvancedLUA:SaveSettings()
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerRaidsItems.. self:GetHexClassColor(XckMLAdvancedLUA.aq_zg_items_guy) .. XckMLAdvancedLUA.aq_zg_items_guy.."|r|cffead454")
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerRollOrNeed.."  |cffead454|r|cffff8362" .. XckMLAdvancedLUA.RollorNeed .. "|r|cffead454")
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerMinQuality.."  |cffead454|r|cffff8362" .. XckMLAdvancedLUA.qualityListSet .. "|r|cffead454")
+	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingCountdownTimer.."  |cffead454|r|cffff8362" .. XckMLAdvancedLUA.countdownStartTime .. "|r|cffead454")
 end
 
 -----
@@ -553,7 +549,7 @@ end
 
 ---Display/Hide ML Lootframe Buttons
 function XckMLAdvancedLUA:ToggleMLLootFrameButtons()
-	if (self:PlayerIsMasterLooter() and self:PlayerIsInAParty()) then
+	if (self:PlayerIsMasterLooter()) then
 		BSettings:Show()
 		BAnnounceDrops:Show()
 		NinjaAllItems:Show()
@@ -566,7 +562,6 @@ end
 
 -- Check if Player is MasterLooter
 function XckMLAdvancedLUA:PlayerIsMasterLooter()
-	
 	local lootMethod, masterLooterPartyID, masterLooterRaidID = GetLootMethod()
 	if (lootMethod ~= "master") then
 		return false
@@ -944,10 +939,13 @@ function XckMLAdvancedLUA:OnUpdate()
 		if (currentCountdownPosition < 0) then
 			currentCountdownPosition = 0
 		end
+		local firstMessageTime = self.countdownRange
+		local secondMessageTime = math.ceil(self.countdownRange / 2)
+
 		local i = self.countdownLastDisplayed - 1
 		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		while (i >= currentCountdownPosition) do
-	            if (currentCountdownPosition == 20 or currentCountdownPosition == 10) then
+	            if (currentCountdownPosition == firstMessageTime or currentCountdownPosition == secondMessageTime) then
 	                SendChatMessage(itemLink .. " " .. i .. " seconds left to roll", 'Raid')
 	            end
 	            -- self:Speak(i)
@@ -1101,6 +1099,7 @@ function XckMLAdvancedLUA:InitAllLootFrameFrame()
 	
 	local BSettings = CreateFrame('Button', "BSettings", LootFrame)
 	BSettings:SetPoint('TOP', LootFrame, 'TOP', 25, -16)
+	BSettings.tooltipText = "test"
 	BSettings:SetWidth(20) 
 	BSettings:SetHeight(20)
 	local BSettingsNtex = BSettings:CreateTexture()
@@ -1114,15 +1113,11 @@ function XckMLAdvancedLUA:InitAllLootFrameFrame()
 	BSettings:SetScript('OnClick', function()
 		if(XckMLAdvancedMainSettings:IsShown() == nil) then
 			XckMLAdvancedMainSettings:Show();
-			XckMLAdvancedMainSettings:SetHeight(LootFrame:GetHeight() - 18);
-			self:Print(XCKMLA_SettingsMSGForSave)
 			else
 			XckMLAdvancedMainSettings:Hide();
-			self:SaveSettings()
-			self:Print(XCKMLA_SettingsMSGForApply)
 		end
 	end)
-	
+
 	local BAnnounceDrops = CreateFrame('Button', "BAnnounceDrops", LootFrame)
 	BAnnounceDrops:SetPoint('TOP', LootFrame, 'TOP', -40, -43)
 	BAnnounceDrops:SetWidth(25) 

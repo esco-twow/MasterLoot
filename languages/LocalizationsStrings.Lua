@@ -6,6 +6,7 @@ if ( GetLocale() == "frFR" ) then
 	XCKMLA_LabelSettingsPlayerRaidsItems = "Joueurs Objets Raids";
 	XCKMLA_LabelSettingsMinQuality = "Qualitée Minimum";
 	XCKMLA_LabelSettingsRollorNeed = "Rand/Besoin Methode";
+	XCKMLA_LabelSettingsCountdownTime = "Compte à rebours";
 	XCKMLA_LabelMainPlayerName = "Nom Joueur";
 	XCKMLA_LabelMainRollNeed = "Rand/Besoin";
 	XCKMLA_ButtonMainGiveAward = "Attribuer au Gagnant";
@@ -18,6 +19,7 @@ if ( GetLocale() == "frFR" ) then
 	XCKMLA_SavedSettingPlayerRaidsItems = "Joueur ZG/AQ Idoles/Bijou etc.. est :  |c";
 	XCKMLA_SavedSettingPlayerMinQuality = "Min Qualitée Affiché :";
 	XCKMLA_SavedSettingPlayerRollOrNeed = "Methode de Loot : ";
+	XCKMLA_SavedSettingCountdownTimer = "Compte à rebours :";
 	XCKMLA_SavedSettingsSuccessSaved = "Options Enregistrés |r";
 	XCKMLA_SelectPlayerBeforeAttrib = "|cFF7F0000Vous devez séléctionner un Joueur avant d'Attribuer.";
 	XCKMLA_YWillGiveItem = "Vous allez donner ";
@@ -62,6 +64,7 @@ if ( GetLocale() == "frFR" ) then
 	XCKMLA_LabelSettingsPlayerRaidsItems = "Player Raids Items";
 	XCKMLA_LabelSettingsMinQuality = "Min Quality Displayed";
 	XCKMLA_LabelSettingsRollorNeed = "Roll/Need Method";
+	XCKMLA_LabelSettingsCountdownTime = "Countdown Time";
 	XCKMLA_LabelMainPlayerName = "Player Name";
 	XCKMLA_LabelMainRollNeed = "Roll/Need";
 	XCKMLA_ButtonMainGiveAward = "Give to Winner";
@@ -74,7 +77,8 @@ if ( GetLocale() == "frFR" ) then
 	XCKMLA_SavedSettingPlayerRaidsItems = "Player ZG/AQ Idol/Coin.. is :  |c";
 	XCKMLA_SavedSettingPlayerMinQuality = "Min Quality Displayed Set to :";
 	XCKMLA_SavedSettingPlayerRollOrNeed = "Loot Calling Method Set to : ";
-	XCKMLA_SavedSettingsSuccessSaved = "Success Saved |rto";
+	XCKMLA_SavedSettingCountdownTimer = "Countdown Timer Set to :";
+	XCKMLA_SavedSettingsSuccessSaved = "Loot settings updated |rto";
 	XCKMLA_SelectPlayerBeforeAttrib = "|cFF7F0000You need to select a Player before attrib.";
 	XCKMLA_YWillGiveItem = "You will give ";
 	XCKMLA_PressForConfirmAttrib = "Press Yes for Confirm Attrib.";
