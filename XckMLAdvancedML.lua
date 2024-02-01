@@ -1,7 +1,7 @@
 ﻿----- INIT ALL VARIABLES
 XckMLAdvancedLUA = {frame = nil, 
 	debugging = false, 
-	countdownRange = 10, 
+	countdownRange = 20, 
 	countdownRunning = false,
 	disenchant = nil,
 	ConfirmNinja = nil,
@@ -949,7 +949,7 @@ function XckMLAdvancedLUA:OnUpdate()
 		local i = self.countdownLastDisplayed - 1
 		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		while (i >= currentCountdownPosition) do
-	            if (currentCountdownPosition == 10 or currentCountdownPosition == 5) then
+	            if (currentCountdownPosition == 20 or currentCountdownPosition == 10) then
 	                SendChatMessage(itemLink .. " " .. i .. " seconds left to roll", 'Raid')
 	            end
 	            -- self:Speak(i)
