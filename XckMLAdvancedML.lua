@@ -1,7 +1,7 @@
 ﻿----- INIT ALL VARIABLES
 XckMLAdvancedLUA = {frame = nil, 
 	debugging = false, 
-	countdownRange = 10, 
+	countdownRange = 20, 
 	countdownRunning = false,
 	disenchant = nil,
 	ConfirmNinja = nil,
@@ -861,7 +861,6 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 			local itemLink = GetLootSlotLink(itemIndex)
 			if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 				local texture, name, quantity, quality, locked = GetLootSlotInfo(itemIndex)
-				print(name)
 				-- if(name == "Hard Spider Leg Tip") then
 				-- 	XckMLAdvancedLUA.LootPrioText = "Prio1"
 				-- elseif(name == "Crisp Spider Meat") then
@@ -875,7 +874,6 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
 				else
 					XckMLAdvancedLUA.LootPrioText = name
-					print(loot_prio[name])
 				end
 
 			end
@@ -947,17 +945,19 @@ function XckMLAdvancedLUA:OnUpdate()
 			currentCountdownPosition = 0
 		end
 		local i = self.countdownLastDisplayed - 1
+		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		while (i >= currentCountdownPosition) do
-
-			SendChatMessage(i, 'Raid')
-			-- self:Speak(i)
-			i = i - 1
-		end
+	            if (currentCountdownPosition == 20 or currentCountdownPosition == 10) then
+	                SendChatMessage(itemLink .. " " .. i .. " seconds left to roll", 'Raid')
+	            end
+	            -- self:Speak(i)
+	            i = i - 1
+	        end
 
 		self.countdownLastDisplayed = currentCountdownPosition
 		if (currentCountdownPosition <= 0) then
 			self.countdownRunning = false
-			SendChatMessage("Rolling is now Closed", 'Raid')
+			SendChatMessage(itemLink .. " Rolling is now Closed", 'Raid')
 		end	
 	end
 end
