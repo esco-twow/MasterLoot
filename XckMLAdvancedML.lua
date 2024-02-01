@@ -861,7 +861,6 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 			local itemLink = GetLootSlotLink(itemIndex)
 			if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 				local texture, name, quantity, quality, locked = GetLootSlotInfo(itemIndex)
-				print(name)
 				-- if(name == "Hard Spider Leg Tip") then
 				-- 	XckMLAdvancedLUA.LootPrioText = "Prio1"
 				-- elseif(name == "Crisp Spider Meat") then
@@ -875,7 +874,6 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
 				else
 					XckMLAdvancedLUA.LootPrioText = name
-					print(loot_prio[name])
 				end
 
 			end
