@@ -9,7 +9,9 @@
 languages\LocalizationsStrings.lua
 lootRes.lua
 lootprio.lua
+lootitems.lua
 specTable.lua
+AutoMasterLooter.xml
 lootRes.xml
 XckMLAdvancedMainFrame.xml
 XckMLAdvancedSettingsFrame.xml

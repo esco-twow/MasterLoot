@@ -140,6 +140,7 @@ SlashCmdList["LOOTRES"] = function(cmd)
 end
 
 function LootResLoadText()
+    LOOTRES_RESERVES = {}
     local data = getglobal('LootResLoadFromTextTextBox'):GetText()
 
     getglobal('LootResLoadFromText'):Hide()
