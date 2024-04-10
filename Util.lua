@@ -40,7 +40,7 @@ function Util.parseCSVData(csvData)
   if not csvData then return false end
   
   -- Split the CSV data into lines
-  for line in string.gmatch(csvData, '([^\r\n]+)') do
+  for line in string.gfind(csvData, '([^\r\n]+)') do
       if header then
           -- Parse the first line to get column headers, lowercase
           columns = Util.parseCSVLine(line)
