@@ -1,7 +1,7 @@
 ﻿----- INIT ALL VARIABLES
 XckMLAdvancedLUA = {frame = nil, 
 	debugging = false, 
-	countdownRange = 20, 
+	countdownRange = 15, 
 	countdownRunning = false,
 	disenchant = nil,
 	ConfirmNinja = nil,
@@ -14,13 +14,15 @@ XckMLAdvancedLUA = {frame = nil,
 	aq_zg_items_guy = nil,
 	dropdownData = {{}},
 	dropdownGroupData = {},
-	deDropdownFrame = XckMLAdvancedMainSettings_SelectDE, 
+	srData = {},
+	deDropdownFrame = XckMLAdvancedMainSettings_SelectDE,
 	bankDropdownFrame = XckMLAdvancedMainSettings_SelectBank,
 	poorguyDropdownFrame = XckMLAdvancedMainSettings_SelectPoorGuy,
 	aq_zg_items_guyDropdownFrame = XckMLAdvancedMainSettings_Selectaq_zg_items_Guy,
 	qualityListDropdownFrame = XckMLAdvancedMainSettings_SelectQualityList,
 	RollorNeedDropdownFrame = XckMLAdvancedMainSettings_SelectRollOrNeed,
 	CountDownTimeFrame = XckMLAdvancedMainSettings_CountdownTime,
+	SRInputFrame = XckMLAdvancedMainSettings_SRInput,
 	currentItemSelected= 0,
 	LootPrioText = "Start Your Engines",
 	dropannounced = nil,
@@ -172,6 +174,32 @@ end
 -----
 -----SETTINGS FRAME FUNCTION
 -----
+
+-- storing per item: attendee,class,specialization,comment
+function XckMLAdvancedLUA:GetSRData(data)
+	local parsedData = Util.parseCSVData(data)
+	if not parsedData then return false end
+	local indexedData = {}
+	for _, row in ipairs(parsedData) do
+			local item = row["item"]
+			-- Initialize a new entry for this item if it doesn't already exist
+			if not indexedData[item] then
+					indexedData[item] = {}
+			end
+			-- Prepare the row data with only the specified columns
+			local rowData = {
+					attendee = row["attendee"],
+					class = row["class"],
+					specialization = row["specialization"],
+					comment = row["comment"]
+			}
+
+			-- Add this row's data to the item's entry
+			table.insert(indexedData[item], rowData)
+	end
+	return indexedData
+end
+
 ------ Save Settings
 function XckMLAdvancedLUA:SaveSettings()
 
@@ -190,6 +218,7 @@ function XckMLAdvancedLUA:SaveSettings()
 	XckMLAdvancedLUA.qualityListSet = UIDropDownMenu_GetText(XckMLAdvancedLUA.qualityListDropdownFrame)
 	XckMLAdvancedLUA.RollorNeed = UIDropDownMenu_GetText(XckMLAdvancedLUA.RollorNeedDropdownFrame)
 	XckMLAdvancedLUA.countdownStartTime = XckMLAdvancedLUA.CountDownTimeFrame:GetValue()
+	XckMLAdvancedLUA.srData = XckMLAdvancedLUA:GetSRData(XckMLAdvancedLUA.SRInputFrame:GetText()) or XckMLAdvancedLUA.srData
 	DEFAULT_CHAT_FRAME:AddMessage(XCKMLA_WelcomeMessage)
 	DEFAULT_CHAT_FRAME:AddMessage(XCKMLA_SavedSettingsSuccessSaved)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerDE..self:GetHexClassColor(XckMLAdvancedLUA.PDez) .. XckMLAdvancedLUA.PDez.."|r|cffead454")
@@ -200,6 +229,11 @@ function XckMLAdvancedLUA:SaveSettings()
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerMinQuality.."  |cffead454|r|cffff8362" .. XckMLAdvancedLUA.qualityListSet .. "|r|cffead454")
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingCountdownTimer.."  |cffead454|r|cffff8362" .. XckMLAdvancedLUA.countdownStartTime .. "|r|cffead454")
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."Guild Members found: ".."  |cffead454|r|cffff8362"..G_Count.."|r|cffead454")
+  if not Util.isTableEmpty(XckMLAdvancedLUA.srData) then
+    local t = {}
+    for item,_ in XckMLAdvancedLUA.srData do table.insert(t,item) end
+    DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
+  end
 
 end
 
@@ -546,6 +580,7 @@ function XckMLAdvancedLUA:GetHexClassColor(PlayerName)
 		return ""
 	end
 	local localizedClass, englishClass = UnitClass(XckMLAdvancedLUA:GetRaidIDByName(PlayerName));
+	if not localizedClass then localizedClass,englishClass = "Warrior","WARRIOR" end
 	return self.LOCAL_RAID_CLASS_COLORS[englishClass].colorStr
 end
 
@@ -957,12 +992,16 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 				-- 	XckMLAdvancedLUA.LootPrioText = name
 				-- 	-- print(itemIndex)
 				-- end
-				
-				if(LOOTRES_RESERVES[name]) then
-					XckMLAdvancedLUA.LootPrioText = "SR: "..LOOTRES_RESERVES[name]
-				elseif(loot_prio[name]) then
-					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
-				else
+
+				if XckMLAdvancedLUA.srData[name] then
+          local t = {}
+          for _,entry in pairs(XckMLAdvancedLUA.srData[name]) do
+            table.insert(t,entry.attendee)
+          end
+          XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
+        elseif(loot_prio[name]) then
+          XckMLAdvancedLUA.LootPrioText = loot_prio[name]
+        else
 					XckMLAdvancedLUA.LootPrioText = name
 				end
 
