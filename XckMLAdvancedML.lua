@@ -549,7 +549,7 @@ function XckMLAdvancedLUA:AutoLootTrash()
 				end
 			end
 			
-			elseif XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and quality <= 1 and not XckMLAdvancedLUA.srData[name] and not loot_prio[name] then
+			elseif XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and quality <= 1 and not XckMLAdvancedLUA.srData[name] and not loot_prio[name] and not LootedItemsTable[name] then
 			
 			-- elseif XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and LootSlotIsSoulbound(li) then
 			-- local match = 0	
@@ -1002,17 +1002,16 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 				-- end
 
 				if XckMLAdvancedLUA.srData[name] then
-          local t = {}
-          for _,entry in pairs(XckMLAdvancedLUA.srData[name]) do
-            table.insert(t,entry.attendee)
-          end
-          XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
-        elseif(loot_prio[name]) then
-          XckMLAdvancedLUA.LootPrioText = loot_prio[name]
-        else
+					local t = {}
+						for _,entry in pairs(XckMLAdvancedLUA.srData[name]) do
+						table.insert(t,entry.attendee)
+						end
+					XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
+					elseif(loot_prio[name]) then
+					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
+					else
 					XckMLAdvancedLUA.LootPrioText = name
 				end
-
 			end
 		end
 
