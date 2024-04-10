@@ -521,20 +521,20 @@ function XckMLAdvancedLUA:CheckIsRaidItem(ItemName)
 end
 
 -- Check if item is not Bind on Pickup
-function LootSlotIsSoulbound(arg)
-	AMLTooltip:ClearLines()
-	AMLTooltip:SetLootItem(arg)
-	local tooltipScan = getglobal("AMLTooltipTextLeft2")
-	if tooltipScan then
-		local BindingStatus = tooltipScan:GetText()
-		if BindingStatus == "Binds when equipped" or BindingStatus == "Binds when picked up" then
-			-- XckMLAdvancedLUA:Print("BOP or BOE")
-			return nil
-		end
-	end
-	-- XckMLAdvancedLUA:Print("loot")
-	return true
-end
+-- function LootSlotIsSoulbound(arg)
+-- 	AMLTooltip:ClearLines()
+-- 	AMLTooltip:SetLootItem(arg)
+-- 	local tooltipScan = getglobal("AMLTooltipTextLeft2")
+-- 	if tooltipScan then
+-- 		local BindingStatus = tooltipScan:GetText()
+-- 		if BindingStatus == "Binds when equipped" or BindingStatus == "Binds when picked up" then
+-- 			-- XckMLAdvancedLUA:Print("BOP or BOE")
+-- 			return nil
+-- 		end
+-- 	end
+-- 	-- XckMLAdvancedLUA:Print("loot")
+-- 	return true
+-- end
 
 -- AutoLoot Corpse
 function XckMLAdvancedLUA:AutoLootTrash()
@@ -548,23 +548,23 @@ function XckMLAdvancedLUA:AutoLootTrash()
 					GiveMasterLoot(li, ci); 
 				end
 			end
-            -- if XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and quality  <= 1 then
 			
-			elseif XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and LootSlotIsSoulbound(li) then
-			local match = 0	
-				for key,value in LootedItemsTable do
-					if (key == name) then
-						match = 1
-					end
-				end
+			elseif XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and quality <= 1 and not XckMLAdvancedLUA.srData[name] and not loot_prio[name] then
+			
+			-- elseif XckMLAdvancedMainSettingsAutoLootTrash:GetChecked() and LootSlotIsSoulbound(li) then
+			-- local match = 0	
+			-- 	for key,value in LootedItemsTable do
+			-- 		if (key == name) then
+			-- 			match = 1
+			-- 		end
+			-- 	end
 
-				if (match ~= 1) then
-					for ci = 1, NbPlayers do 
-						if (GetMasterLootCandidate(ci) == XckMLAdvancedLUA.poorguy) then 
-							GiveMasterLoot(li, ci); 
-						end
-					end
+			-- 	if (match ~= 1) then
+			for ci = 1, NbPlayers do 
+				if (GetMasterLootCandidate(ci) == XckMLAdvancedLUA.poorguy) then 
+					GiveMasterLoot(li, ci); 
 				end
+			end		
 		end
 	end
 end
