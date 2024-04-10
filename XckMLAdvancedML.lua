@@ -175,6 +175,7 @@ end
 ------ Save Settings
 function XckMLAdvancedLUA:SaveSettings()
 
+	local roster_offline_option = GetGuildRosterShowOffline()
 	SetGuildRosterShowOffline(true)
 	guildmembersdb = {}
 	G_Count = GetNumGuildMembers(numTotalMembers)
@@ -182,6 +183,7 @@ function XckMLAdvancedLUA:SaveSettings()
 		local name,rank,_,_,class,_,_,onote = GetGuildRosterInfo(i);
 		table.insert(guildmembersdb, {name=name, rank=rank, class=class, onote=onote})
 	end
+	SetGuildRosterShowOffline(roster_offline_option)
 
 	XckMLAdvancedLUA.PDez = UIDropDownMenu_GetText(XckMLAdvancedLUA.deDropdownFrame)
 	XckMLAdvancedLUA.bank = UIDropDownMenu_GetText(XckMLAdvancedLUA.bankDropdownFrame)
