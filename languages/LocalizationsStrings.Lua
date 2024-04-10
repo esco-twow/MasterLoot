@@ -78,6 +78,7 @@ if ( GetLocale() == "frFR" ) then
 	XCKMLA_SavedSettingPlayerMinQuality = "Min Quality Displayed Set to :";
 	XCKMLA_SavedSettingPlayerRollOrNeed = "Loot Calling Method Set to : ";
 	XCKMLA_SavedSettingCountdownTimer = "Countdown Timer Set to :";
+	XCKMLA_LabelSettingsSRInput = "SR Data Input:";
 	XCKMLA_SavedSettingsSuccessSaved = "Loot settings updated |rto";
 	XCKMLA_SelectPlayerBeforeAttrib = "|cFF7F0000You need to select a Player before attrib.";
 	XCKMLA_YWillGiveItem = "You will give ";

@@ -13,6 +13,7 @@ lootitems.lua
 specTable.lua
 AutoMasterLooter.xml
 lootRes.xml
+Util.lua
 XckMLAdvancedMainFrame.xml
 XckMLAdvancedSettingsFrame.xml
 languages\LocalizationRaidItemsLib.lua
