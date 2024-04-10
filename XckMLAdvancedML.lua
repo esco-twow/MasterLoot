@@ -200,6 +200,7 @@ function XckMLAdvancedLUA:GetSRData(data)
 	return indexedData
 end
 
+
 ------ Save Settings
 function XckMLAdvancedLUA:SaveSettings()
 
@@ -218,7 +219,12 @@ function XckMLAdvancedLUA:SaveSettings()
 	XckMLAdvancedLUA.qualityListSet = UIDropDownMenu_GetText(XckMLAdvancedLUA.qualityListDropdownFrame)
 	XckMLAdvancedLUA.RollorNeed = UIDropDownMenu_GetText(XckMLAdvancedLUA.RollorNeedDropdownFrame)
 	XckMLAdvancedLUA.countdownStartTime = XckMLAdvancedLUA.CountDownTimeFrame:GetValue()
-	XckMLAdvancedLUA.srData = XckMLAdvancedLUA:GetSRData(XckMLAdvancedLUA.SRInputFrame:GetText()) or XckMLAdvancedLUA.srData
+	local sr_text = XckMLAdvancedLUA.SRInputFrame:GetText()
+	if sr_text ~= "" then
+	  XckMLAdvancedLUA.srData = XckMLAdvancedLUA:GetSRData(sr_text) or XckMLAdvancedLUA.srData
+		XckMLAdvancedLUA.SRInputFrame:SetText("")
+	end
+	-- Reporting:
 	DEFAULT_CHAT_FRAME:AddMessage(XCKMLA_WelcomeMessage)
 	DEFAULT_CHAT_FRAME:AddMessage(XCKMLA_SavedSettingsSuccessSaved)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingPlayerDE..self:GetHexClassColor(XckMLAdvancedLUA.PDez) .. XckMLAdvancedLUA.PDez.."|r|cffead454")
