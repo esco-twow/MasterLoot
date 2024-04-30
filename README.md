@@ -4,7 +4,7 @@
 
 A new Addon imported from TBC & fully redesigned & optimized.
 
-[LootBlare](https://github.com/MarcelineVQ/LootBlare) The sister addon to makes it easier to see loot rolls for the players when using this addon.
+[LootBlare](https://github.com/MarcelineVQ/LootBlare) The sister addon to makes it easier to see loot rolls for the players when the MasterLooter is using this addon.
 
 **This  Addon isnt compatible with AddOns changing UI of Default LootFrame like Skinning of Pfui, Xloot...**
 
