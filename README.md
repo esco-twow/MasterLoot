@@ -5,6 +5,7 @@
 A new Addon imported from TBC & fully redesigned & optimized.
 
 **[LootBalre](https://github.com/MarcelineVQ/LootBlare) The sister addon to makes it easier to see loot rolls for the players.
+
 **This  Addon isnt compatible with AddOns changing UI of Default LootFrame like Skinning of Pfui, Xloot...**
 
 *Command in game Available :*
