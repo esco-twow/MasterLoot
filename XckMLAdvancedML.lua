@@ -322,14 +322,20 @@ end
 
 --Announce All Drop
 function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
-	local output = "Boss Loots: "
-	for itemIndex = 1, MasterLootTable:GetItemCount() do
-		local itemLink = MasterLootTable:GetItemLink(itemIndex)
-		output = output .. itemLink
-	end
-	if(MasterLootTable:GetItemCount()>0) then
+	if MasterLootTable:GetItemCount() > 0 then
+		local output = "Boss Loots: "
+		for itemIndex = 1, MasterLootTable:GetItemCount() do
+			local itemLink = MasterLootTable:GetItemLink(itemIndex)
+			local temp_output = output .. itemLink
+			if string.len(temp_output) > 255 then
+				self:Speak(output)
+				output = itemLink -- too long, add to next round
+			else
+				output = temp_output
+			end
+		end
 		self:Speak(output)
-		else
+	else
 		self:Print(XCKMLA_NoLootToAnnounce)
 	end
 end
