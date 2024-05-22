@@ -893,12 +893,37 @@ function XckMLAdvancedLUA:FillLootTable()
 		oldLootItem = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 	end
 	MasterLootTable:Clear()
-	for lootIndex = 1, GetNumLootItems() do
-		if (LootSlotIsItem(lootIndex)) then
-			local itemLink = GetLootSlotLink(lootIndex)
-			MasterLootTable:AddItem(itemLink, lootIndex)
+
+	local name, realm = UnitName("Target")
+	
+	if(boss_quest[name]) then
+		fakelink = boss_quest[name]
+		-- print(fakelink)
+	-- if name == "Sawtooth Crocolisk" then
+		DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
+	-- 	local fakelink = "\124cffa335ee\124Hitem:22520:0:0:0:0:0:0:0:0\124h[The Phylactery of Kel'Thuzad]\124h\124r"
+		-- local ind = MasterLootTable:GetItemCount() + 1
+		-- print(ind)
+		MasterLootTable:AddItem(fakelink,1)
+	end
+
+	if MasterLootTable:GetItemCount() == 1 then
+		for lootIndex = 1, GetNumLootItems() do
+			if (LootSlotIsItem(lootIndex)) then
+				local itemLink = GetLootSlotLink(lootIndex)
+				local looti = lootIndex + 1
+				MasterLootTable:AddItem(itemLink, looti)
+			end
+		end
+	else 
+		for lootIndex = 1, GetNumLootItems() do
+			if (LootSlotIsItem(lootIndex)) then
+				local itemLink = GetLootSlotLink(lootIndex)
+				MasterLootTable:AddItem(itemLink, lootIndex)
+			end
 		end
 	end
+
 	XckMLAdvancedLUA.currentItemSelected = 1
 	if (oldLootItem ~= nil) then
 		for itemIndex = 1, MasterLootTable:GetItemCount() do
@@ -914,16 +939,24 @@ end
 function XckMLAdvancedLUA:UpdateSelectionFrame()
 	self:CreateBasicSelectionFrame()
 	local frameHeight = 5
+	local county = MasterLootTable:GetItemCount()
+	-- print(county)
 	for itemIndex = 1, MasterLootTable:GetItemCount() do
 		local buttonName = "SelectionButton" .. itemIndex
 		local buttonFrame = getglobal(buttonName) or CreateFrame("Button", buttonName, selectionFrame, "SelectionButtonTemplate")
 		buttonFrame:Show()
 		buttonFrame:SetID(itemIndex)
 		local itemLink = MasterLootTable:GetItemLink(itemIndex)
+		-- print(itemLink)
 		local buttonItemLink = getglobal(buttonName .. "_ItemLink")
 		buttonItemLink:SetText(itemLink)
-	
-		local itemTexture = MasterLootTable:GetItemTexture(itemIndex)
+
+		local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
+		local itemId = tonumber(itemIdStr)
+		-- print(itemId)
+		itemName, itemLink, itemQuality, _, _, _, _, _, itemTexture = GetItemInfo(itemId)
+		-- local itemTexture = MasterLootTable:GetItemTexture(itemIndex)
+		-- print(itemTexture)
 		local buttonItemTexture = getglobal(buttonName .. "_ItemTexture")
 		buttonItemTexture:SetTexture(itemTexture)
 		
@@ -993,11 +1026,14 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		local itemLinkLabel = getglobal("XckMLAdvancedMain_CurrentItemLink")
 		itemLinkLabel:SetText(itemLink)
-		
+				
 		for itemIndex = 1, GetNumLootItems() do
-			local itemLink = GetLootSlotLink(itemIndex)
+			-- local itemLink = GetLootSlotLink(itemIndex)
 			if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 				local texture, name, quantity, quality, locked = GetLootSlotInfo(itemIndex)
+				local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
+				local itemId = tonumber(itemIdStr) 
+				local iname = GetItemInfo(itemId)
 				-- if(name == "Hard Spider Leg Tip") then
 				-- 	XckMLAdvancedLUA.LootPrioText = "Prio1"
 				-- elseif(name == "Crisp Spider Meat") then
@@ -1013,8 +1049,16 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 						table.insert(t,entry.attendee)
 						end
 					XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
+					elseif XckMLAdvancedLUA.srData[iname] then
+						local t = {}
+							for _,entry in pairs(XckMLAdvancedLUA.srData[iname]) do
+							table.insert(t,entry.attendee)
+							end
+					XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
 					elseif(loot_prio[name]) then
 					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
+					elseif(loot_prio[iname]) then
+					XckMLAdvancedLUA.LootPrioText = loot_prio[iname]
 					else
 					XckMLAdvancedLUA.LootPrioText = name
 				end
@@ -1026,8 +1070,11 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 		-- local texture, name, quantity, quality, locked = GetLootSlotInfo(1)
 		-- print(name)
 		lootPrioEditBox:SetText(XckMLAdvancedLUA.LootPrioText)
-
-		local itemTexture = MasterLootTable:GetItemTexture(XckMLAdvancedLUA.currentItemSelected)
+		-- local itemTexture = MasterLootTable:GetItemTexture(XckMLAdvancedLUA.currentItemSelected)
+		local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
+		local itemId = tonumber(itemIdStr)
+		-- print(itemId)
+		itemName, itemLink, itemQuality, _, _, _, _, _, itemTexture = GetItemInfo(itemId)
 		local currentItemTexture = getglobal("XckMLAdvancedMain_CurrentItemTexture")
 		currentItemTexture:SetNormalTexture(itemTexture)
 		currentItemTexture:SetPushedTexture(itemTexture)

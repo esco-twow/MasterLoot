@@ -7,6 +7,7 @@
 ## LoadOnDemand: 0
 ## SavedVariables: MasterLootManagerSettings
 languages\LocalizationsStrings.lua
+bossquest.lua
 lootprio.lua
 lootitems.lua
 specTable.lua
