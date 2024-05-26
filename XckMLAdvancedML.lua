@@ -24,6 +24,7 @@ XckMLAdvancedLUA = {frame = nil,
 	CountDownTimeFrame = XckMLAdvancedMainSettings_CountdownTime,
 	SRInputFrame = XckMLAdvancedMainSettings_SRInput,
 	currentItemSelected= 0,
+	currentItemSelectedtexture = nil,
 	LootPrioText = "Start Your Engines",
 	dropannounced = nil,
 	QualityList = {
@@ -896,18 +897,24 @@ function XckMLAdvancedLUA:FillLootTable()
 
 	local name, realm = UnitName("Target")
 	
-	if(boss_quest[name]) then
-		fakelink = boss_quest[name]
-		-- print(fakelink)
-	-- if name == "Sawtooth Crocolisk" then
-		DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
-	-- 	local fakelink = "\124cffa335ee\124Hitem:22520:0:0:0:0:0:0:0:0\124h[The Phylactery of Kel'Thuzad]\124h\124r"
-		-- local ind = MasterLootTable:GetItemCount() + 1
-		-- print(ind)
-		MasterLootTable:AddItem(fakelink,1)
+	local cnt = 1
+	-- print("count".. cnt)
+	for bossName, items in pairs(boss_quest) do
+		if(bossName == name) then
+			-- print(name)
+			if type(items) == "table" then
+				for lootcount = 1, getn(items) do
+				fakelink = items[lootcount]
+				DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
+				MasterLootTable:AddItem(fakelink,cnt)
+				cnt = cnt + 1
+				-- print("count".. cnt)
+				end
+			end
+		end
 	end
 
-	if MasterLootTable:GetItemCount() == 1 then
+	if MasterLootTable:GetItemCount() >= 1 then
 		for lootIndex = 1, GetNumLootItems() do
 			if (LootSlotIsItem(lootIndex)) then
 				local itemLink = GetLootSlotLink(lootIndex)
@@ -1029,11 +1036,13 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 				
 		for itemIndex = 1, GetNumLootItems() do
 			-- local itemLink = GetLootSlotLink(itemIndex)
+			-- print(itemLink)
 			if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
-				local texture, name, quantity, quality, locked = GetLootSlotInfo(itemIndex)
+				-- print(itemLink)
+				-- local texture, name, quantity, quality, locked = GetLootSlotInfo(itemLink)
 				local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
 				local itemId = tonumber(itemIdStr) 
-				local iname = GetItemInfo(itemId)
+				local name = GetItemInfo(itemId)
 				-- if(name == "Hard Spider Leg Tip") then
 				-- 	XckMLAdvancedLUA.LootPrioText = "Prio1"
 				-- elseif(name == "Crisp Spider Meat") then
@@ -1042,23 +1051,14 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 				-- 	XckMLAdvancedLUA.LootPrioText = name
 				-- 	-- print(itemIndex)
 				-- end
-
 				if XckMLAdvancedLUA.srData[name] then
 					local t = {}
 						for _,entry in pairs(XckMLAdvancedLUA.srData[name]) do
 						table.insert(t,entry.attendee)
 						end
 					XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
-					elseif XckMLAdvancedLUA.srData[iname] then
-						local t = {}
-							for _,entry in pairs(XckMLAdvancedLUA.srData[iname]) do
-							table.insert(t,entry.attendee)
-							end
-					XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
 					elseif(loot_prio[name]) then
 					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
-					elseif(loot_prio[iname]) then
-					XckMLAdvancedLUA.LootPrioText = loot_prio[iname]
 					else
 					XckMLAdvancedLUA.LootPrioText = name
 				end
@@ -1070,7 +1070,11 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 		-- local texture, name, quantity, quality, locked = GetLootSlotInfo(1)
 		-- print(name)
 		lootPrioEditBox:SetText(XckMLAdvancedLUA.LootPrioText)
+		-- print(XckMLAdvancedLUA.currentItemSelected)
 		-- local itemTexture = MasterLootTable:GetItemTexture(XckMLAdvancedLUA.currentItemSelected)
+		XckMLAdvancedLUA.currentItemSelectedtexture = itemLink
+		-- local itemtest = MasterLootTable:GetItemTexture2(itemLink)
+		-- print(itemtest)
 		local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
 		local itemId = tonumber(itemIdStr)
 		-- print(itemId)
@@ -1095,6 +1099,14 @@ end
 -- Get item Texture
 function MasterLootTable:GetItemTexture(index)
 	return self.loot[index].itemTexture
+end
+
+-- Get item Texture
+function MasterLootTable:GetItemTexture2(itemLink)
+	local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
+	local itemId = tonumber(itemIdStr)
+	itemName, itemLink, itemQuality, _, _, _, _, _, itemTexture = GetItemInfo(itemId)
+	return itemTexture
 end
 
 -- Clear Loot Data Array
@@ -1450,6 +1462,6 @@ timeout = 0,
 whileDead = true,
 hideOnEscape = true,
 hasItemFrame = true,
-preferredIndex = 3, 
-OnShow = function() getglobal(this:GetName().."AlertIcon"):SetPoint("LEFT", 20, 0) getglobal(this:GetName().."AlertIcon"):SetTexture(MasterLootTable:GetItemTexture(XckMLAdvancedLUA.currentItemSelected)) getglobal(this:GetName().."AlertIcon"):SetWidth(40) getglobal(this:GetName().."AlertIcon"):SetHeight(40) end,
+preferredIndex = 3,
+OnShow = function() getglobal(this:GetName().."AlertIcon"):SetPoint("LEFT", 20, 0) getglobal(this:GetName().."AlertIcon"):SetTexture(MasterLootTable:GetItemTexture2(XckMLAdvancedLUA.currentItemSelectedtexture)) getglobal(this:GetName().."AlertIcon"):SetWidth(40) getglobal(this:GetName().."AlertIcon"):SetHeight(40) end,
 }																																																		
