@@ -26,6 +26,8 @@ XckMLAdvancedLUA = {frame = nil,
 	currentItemSelected= 0,
 	currentItemSelectedtexture = nil,
 	LootPrioText = "Start Your Engines",
+	bosslootname = nil, 
+	looterfaction = nil,
 	dropannounced = nil,
 	QualityList = {
 		["Poor"] = 0,
@@ -244,6 +246,9 @@ function XckMLAdvancedLUA:SaveSettings()
     DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
   end
 
+  	local englishFaction, localizedFaction = UnitFactionGroup("player")
+	XckMLAdvancedLUA.looterfaction = englishFaction
+	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."MasterLooter Faction: ".."  |cffead454|r|cffff8362"..XckMLAdvancedLUA.looterfaction.."|r|cffead454")
 end
 
 -----
@@ -899,17 +904,40 @@ function XckMLAdvancedLUA:FillLootTable()
 	
 	local cnt = 1
 	-- print("count".. cnt)
-	for bossName, items in pairs(boss_quest) do
-		if(bossName == name) then
-			-- print(name)
-			if type(items) == "table" then
-				for lootcount = 1, getn(items) do
-				fakelink = items[lootcount]
-				DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
-				MasterLootTable:AddItem(fakelink,cnt)
-				cnt = cnt + 1
-				-- print("count".. cnt)
+	if (XckMLAdvancedLUA.looterfaction == "Alliance") then
+		for bossName, items in pairs(boss_quest_alliance) do
+			if(bossName == name) then
+				-- print(name)
+				if type(items) == "table" then
+					for lootcount = 1, getn(items) do
+					fakelink = items[lootcount]
+						if(XckMLAdvancedLUA.bosslootname ~= name) then
+						DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
+						end
+					MasterLootTable:AddItem(fakelink,cnt)
+					cnt = cnt + 1
+					-- print("count".. cnt)
+					end
 				end
+				XckMLAdvancedLUA.bosslootname = name
+			end
+		end
+	else
+		for bossName, items in pairs(boss_quest_horde) do
+			if(bossName == name) then
+				-- print(name)
+				if type(items) == "table" then
+					for lootcount = 1, getn(items) do
+					fakelink = items[lootcount]
+						if(XckMLAdvancedLUA.bosslootname ~= name) then
+						DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
+						end
+					MasterLootTable:AddItem(fakelink,cnt)
+					cnt = cnt + 1
+					-- print("count".. cnt)
+					end
+				end
+				XckMLAdvancedLUA.bosslootname = name
 			end
 		end
 	end
