@@ -473,6 +473,7 @@ function GiveLootToWinner()
 				if (GetMasterLootCandidate(winningPlayerIndex) == MasterLootRolls.winningPlayer) then
 					for itemIndex = 1, GetNumLootItems() do
 						local itemLink = GetLootSlotLink(itemIndex)
+						local fakeitemlink = MasterLootTable:GetItemLink(itemIndex)
 						if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 							GiveMasterLoot(itemIndex, winningPlayerIndex)
 							XckMLAdvancedLUA:Speak(MasterLootRolls.winningPlayer .. " received " .. itemLink)
@@ -481,10 +482,20 @@ function GiveLootToWinner()
 							XckMLAdvancedLUA.ConfirAttrib = nil
 							XckMLAdvancedLUA.dropannounced = nil
 							return
+						elseif (fakeitemlink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
+							XckMLAdvancedLUA:Speak(MasterLootRolls.winningPlayer .. " won " .. fakeitemlink .. " Please stay to the end to loot your item as I can't send it to you..")
+							SendChatMessage("You won ".. fakeitemlink .. " Please stay to the end to loot your item as I can't send it to you.", "WHISPER", nil, MasterLootRolls.winningPlayer)
+							MasterLootRolls:ClearRollList()
+							MasterLootRolls.winningPlayer = nil
+							XckMLAdvancedLUA.ConfirAttrib = nil
+							XckMLAdvancedLUA.dropannounced = nil
+							return
 						end
+
 					end
 					XckMLAdvancedLUA:Print(XCKMLA_CANNOTFINDITEM .. MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemIndex))
 				end
+			-- return
 			end
 		end
 		XckMLAdvancedLUA:Print(XCKMLA_CANNOTFINDPLAYER .. MasterLootRolls.winningPlayer)
