@@ -263,9 +263,6 @@ function XckMLAdvancedLUA:SaveSettings()
     DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
   end
 
-  local englishFaction, localizedFaction = UnitFactionGroup("player")
-	XckMLAdvancedLUA.looterfaction = englishFaction
-	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."MasterLooter Faction: ".."  |cffead454|r|cffff8362"..XckMLAdvancedLUA.looterfaction.."|r|cffead454")
 
 end
 
@@ -505,7 +502,6 @@ function GiveLootToWinner()
 				if (GetMasterLootCandidate(winningPlayerIndex) == MasterLootRolls.winningPlayer) then
 					for itemIndex = 1, GetNumLootItems() do
 						local itemLink = GetLootSlotLink(itemIndex)
-						local fakeitemlink = MasterLootTable:GetItemLink(itemIndex)
 						if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 							GiveMasterLoot(itemIndex, winningPlayerIndex)
 							XckMLAdvancedLUA:Speak(MasterLootRolls.winningPlayer .. " received " .. itemLink)
@@ -514,16 +510,7 @@ function GiveLootToWinner()
 							XckMLAdvancedLUA.ConfirAttrib = nil
 							XckMLAdvancedLUA.dropannounced = nil
 							return
-						elseif (fakeitemlink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
-							XckMLAdvancedLUA:Speak(MasterLootRolls.winningPlayer .. " won " .. fakeitemlink .. " Please stay to the end to loot your item as I can't send it to you..")
-							SendChatMessage("You won ".. fakeitemlink .. " Please stay to the end to loot your item as I can't send it to you.", "WHISPER", nil, MasterLootRolls.winningPlayer)
-							MasterLootRolls:ClearRollList()
-							MasterLootRolls.winningPlayer = nil
-							XckMLAdvancedLUA.ConfirAttrib = nil
-							XckMLAdvancedLUA.dropannounced = nil
-							return
 						end
-
 					end
 
 					for fakeitemindex = 1, MasterLootTable:GetItemCount() do
@@ -987,9 +974,7 @@ function XckMLAdvancedLUA:FillLootTable()
 					for lootcount = 1, getn(items) do
 					fakelink = items[lootcount]
 						if(XckMLAdvancedLUA.bosslootname ~= name) then
-
 						DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." is on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
-
 						end
 					MasterLootTable:AddItem(fakelink,cnt)
 					cnt = cnt + 1
@@ -998,7 +983,6 @@ function XckMLAdvancedLUA:FillLootTable()
 				end
 				XckMLAdvancedLUA.bosslootname = name
 			end
-
 		end
 	end
 
@@ -1018,7 +1002,6 @@ function XckMLAdvancedLUA:FillLootTable()
 			end
 		end
 	end
-
 
 	XckMLAdvancedLUA.currentItemSelected = 1
 	if (oldLootItem ~= nil) then
