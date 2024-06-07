@@ -199,6 +199,18 @@ function XckMLAdvancedLUA:GetSRData(data)
 
 			-- Add this row's data to the item's entry
 			table.insert(indexedData[item], rowData)
+			-- special-case gem bags, add all colors
+			local _,_, gem_sack = string.find(item,"(%w+) Sack of Gems")
+			if gem_sack then
+				for _,color in ipairs({ "Blue", "Green", "Gray", "Yellow","Red" }) do
+					if color ~= gem_sack then
+						local sacstr = color .. " Sack of Gems"
+						indexedData[sacstr] = indexedData[sacstr] or {}
+						table.insert(indexedData[sacstr], rowData)
+					end
+				end
+			end
+
 	end
 	return indexedData
 end
@@ -251,6 +263,9 @@ function XckMLAdvancedLUA:SaveSettings()
     DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
   end
 
+  local englishFaction, localizedFaction = UnitFactionGroup("player")
+	XckMLAdvancedLUA.looterfaction = englishFaction
+	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."MasterLooter Faction: ".."  |cffead454|r|cffff8362"..XckMLAdvancedLUA.looterfaction.."|r|cffead454")
 
 end
 
@@ -331,12 +346,26 @@ end
 
 --Announce All Drop
 function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
-	if MasterLootTable:GetItemCount() > 0 then
+	local itemCount = MasterLootTable:GetItemCount()
+	if itemCount > 0 then
 		local output = "Boss Loots: "
-		for itemIndex = 1, MasterLootTable:GetItemCount() do
+		for itemIndex = 1, itemCount do
 			local itemLink = MasterLootTable:GetItemLink(itemIndex)
 			local temp_output = output .. itemLink
-			if string.len(temp_output) > 255 then
+
+			-- if only two remain, print them on their own line to avoid singular prints
+			if itemIndex == itemCount - 1 then
+				local last_item = MasterLootTable:GetItemLink(itemCount)
+				temp_output = temp_output .. last_item
+
+				if string.len(temp_output) > 255 then -- check if msg is too long
+					self:Speak(output)
+					output = itemLink .. last_item
+				else
+					output = temp_output
+				end
+				break
+			elseif string.len(temp_output) > 255 then -- check if msg is too long
 				self:Speak(output)
 				output = itemLink -- too long, add to next round
 			else
@@ -476,6 +505,7 @@ function GiveLootToWinner()
 				if (GetMasterLootCandidate(winningPlayerIndex) == MasterLootRolls.winningPlayer) then
 					for itemIndex = 1, GetNumLootItems() do
 						local itemLink = GetLootSlotLink(itemIndex)
+						local fakeitemlink = MasterLootTable:GetItemLink(itemIndex)
 						if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 							GiveMasterLoot(itemIndex, winningPlayerIndex)
 							XckMLAdvancedLUA:Speak(MasterLootRolls.winningPlayer .. " received " .. itemLink)
@@ -484,7 +514,16 @@ function GiveLootToWinner()
 							XckMLAdvancedLUA.ConfirAttrib = nil
 							XckMLAdvancedLUA.dropannounced = nil
 							return
+						elseif (fakeitemlink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
+							XckMLAdvancedLUA:Speak(MasterLootRolls.winningPlayer .. " won " .. fakeitemlink .. " Please stay to the end to loot your item as I can't send it to you..")
+							SendChatMessage("You won ".. fakeitemlink .. " Please stay to the end to loot your item as I can't send it to you.", "WHISPER", nil, MasterLootRolls.winningPlayer)
+							MasterLootRolls:ClearRollList()
+							MasterLootRolls.winningPlayer = nil
+							XckMLAdvancedLUA.ConfirAttrib = nil
+							XckMLAdvancedLUA.dropannounced = nil
+							return
 						end
+
 					end
 
 					for fakeitemindex = 1, MasterLootTable:GetItemCount() do
@@ -948,7 +987,9 @@ function XckMLAdvancedLUA:FillLootTable()
 					for lootcount = 1, getn(items) do
 					fakelink = items[lootcount]
 						if(XckMLAdvancedLUA.bosslootname ~= name) then
+
 						DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." is on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
+
 						end
 					MasterLootTable:AddItem(fakelink,cnt)
 					cnt = cnt + 1
@@ -957,6 +998,7 @@ function XckMLAdvancedLUA:FillLootTable()
 				end
 				XckMLAdvancedLUA.bosslootname = name
 			end
+
 		end
 	end
 
@@ -976,6 +1018,7 @@ function XckMLAdvancedLUA:FillLootTable()
 			end
 		end
 	end
+
 
 	XckMLAdvancedLUA.currentItemSelected = 1
 	if (oldLootItem ~= nil) then
