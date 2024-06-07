@@ -199,6 +199,18 @@ function XckMLAdvancedLUA:GetSRData(data)
 
 			-- Add this row's data to the item's entry
 			table.insert(indexedData[item], rowData)
+			-- special-case gem bags, add all colors
+			local _,_, gem_sack = string.find(item,"(%w+) Sack of Gems")
+			if gem_sack then
+				for _,color in ipairs({ "Blue", "Green", "Gray", "Yellow","Red" }) do
+					if color ~= gem_sack then
+						local sacstr = color .. " Sack of Gems"
+						indexedData[sacstr] = indexedData[sacstr] or {}
+						table.insert(indexedData[sacstr], rowData)
+					end
+				end
+			end
+
 	end
 	return indexedData
 end
