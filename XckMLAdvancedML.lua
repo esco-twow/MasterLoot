@@ -143,7 +143,7 @@ function XckMLAdvancedLUA:OnEvent(self, event)
 
 		-- over-ride people's position customization
 		LootFrame:ClearAllPoints()
-    LootFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+		LootFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 
 		self:FillLootTable()
 		self:UpdateSelectionFrame()
