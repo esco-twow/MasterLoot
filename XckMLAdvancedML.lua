@@ -140,6 +140,11 @@ end
 -- OnEvent Event
 function XckMLAdvancedLUA:OnEvent(self, event)
 	if (event == "LOOT_OPENED") then
+
+		-- over-ride people's position customization
+		LootFrame:ClearAllPoints()
+    LootFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+
 		self:FillLootTable()
 		self:UpdateSelectionFrame()
 		self:ToggleMLLootFrameButtons()
