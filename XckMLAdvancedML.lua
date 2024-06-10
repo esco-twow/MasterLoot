@@ -29,6 +29,7 @@ XckMLAdvancedLUA = {frame = nil,
 	bosslootname = nil, 
 	looterfaction = nil,
 	dropannounced = nil,
+	settings_set = false,
 	QualityList = {
 		["Poor"] = 0,
 		["Common"]=1,
@@ -263,7 +264,7 @@ function XckMLAdvancedLUA:SaveSettings()
     DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
   end
 
-
+	XckMLAdvancedLUA.settings_set = true
 end
 
 -----
@@ -1238,6 +1239,14 @@ function XckMLAdvancedLUA:OnUpdate()
 			self.countdownRunning = false
 			SendChatMessage(itemLink .. " Rolling is now Closed", 'Raid')
 		end	
+	end
+end
+
+function XckMLAdvancedLUA:OnShow()
+	if not XckMLAdvancedLUA.settings_set and not XckMLAdvancedMainSettings:IsShown() then
+		XckMLAdvancedMainSettings:Show();
+	else
+		XckMLAdvancedMainSettings:Hide();
 	end
 end
 
