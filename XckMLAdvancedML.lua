@@ -222,8 +222,8 @@ function XckMLAdvancedLUA:SaveSettings()
 	local roster_offline_option = GetGuildRosterShowOffline()
 	SetGuildRosterShowOffline(true)
 	guildmembersdb = {}
-	G_Count = GetNumGuildMembers(numTotalMembers)
-    for i = 1, G_Count do
+	G_Count = GetNumGuildMembers()
+    	for i = 1, G_Count do
 		local name,rank,_,_,class,_,_,onote = GetGuildRosterInfo(i);
 		table.insert(guildmembersdb, {name=name, rank=rank, class=class, onote=onote})
 	end
@@ -883,7 +883,7 @@ function MasterLootRolls:UpdateRollList()
 		grank = "Guest"
 		gspec = ""
 
-		for j = 1, G_Count do 
+		for j = 1, GetNumGuildMembers() do 
 			if(guildmembersdb[j].name == playerName) then
 				for key,value in specTable do
 					if string.find(guildmembersdb[j].onote, key) then 
@@ -1504,9 +1504,8 @@ function GetGuildMembers()
 end
 
 function RetrieveGuildMember()
-	print(G_Count)
 	-- print(GName..)
-	for i = 1, G_Count do 
+	for i = 1, GetNumGuildMembers() do 
 		-- if(guildmembersdb[i].name == GName) then
 			if string.find(guildmembersdb[i].onote, "MS:B") then
 				print(guildmembersdb[i].name.." "..guildmembersdb[i].rank.." ".."Boomkin")
