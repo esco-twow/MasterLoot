@@ -29,7 +29,7 @@ XckMLAdvancedLUA = {frame = nil,
 	bosslootname = nil, 
 	looterfaction = nil,
 	dropannounced = nil,
-	settings_set = false,
+	settings_set = false, -- I actually want this local not part of the settings, so that it always pops up once
 	QualityList = {
 		["Poor"] = 0,
 		["Common"]=1,
@@ -79,6 +79,22 @@ end
 function XckMLAdvancedLUA:Print(str)
 	DEFAULT_CHAT_FRAME:AddMessage(str)
 end
+
+----- HOOK LOOTFRAME TO SEE MORE AT ONCE
+LOOTFRAME_NUMBUTTONS = 10
+
+for i=5,LOOTFRAME_NUMBUTTONS do
+  local f = CreateFrame("LootButton","LootButton"..i,LootFrame,"LootButtonTemplate")
+  f:SetPoint("TOP","LootButton"..i-1,"BOTTOM",0,-4)
+  f.id = i
+	f:Hide()
+end
+
+for i=1,LOOTFRAME_NUMBUTTONS do
+  local n = "LootButton"..i
+  local button = getglobal(n)
+end
+-----
 
 ------
 ------ CORE EVENT TRIGGER FUNCTION
@@ -143,7 +159,7 @@ function XckMLAdvancedLUA:OnEvent(self, event)
 
 		-- over-ride people's position customization
 		LootFrame:ClearAllPoints()
-		LootFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+		LootFrame:SetPoint("CENTER", UIParent, "CENTER", 100, 0)
 
 		self:FillLootTable()
 		self:UpdateSelectionFrame()
@@ -1249,6 +1265,7 @@ end
 
 function XckMLAdvancedLUA:OnShow()
 	if not XckMLAdvancedLUA.settings_set and not XckMLAdvancedMainSettings:IsShown() then
+		XckMLAdvancedMainSettings:SetPoint("LEFT","LootFrame","RIGHT",-50,0)
 		XckMLAdvancedMainSettings:Show();
 	else
 		XckMLAdvancedMainSettings:Hide();
@@ -1407,6 +1424,7 @@ function XckMLAdvancedLUA:InitAllLootFrameFrame()
 	BSettings:SetHighlightTexture(BSettingsHtex)
 	BSettings:SetScript('OnClick', function()
 		if(XckMLAdvancedMainSettings:IsShown() == nil) then
+			XckMLAdvancedMainSettings:SetPoint("LEFT","LootFrame","RIGHT",-50,0)
 			XckMLAdvancedMainSettings:Show();
 			else
 			XckMLAdvancedMainSettings:Hide();
