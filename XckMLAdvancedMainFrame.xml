@@ -400,6 +400,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			</Layer>
 		</Layers>
 		<Scripts>
+			<OnShow>
+				XckMLAdvancedLUA:OnShow()
+			</OnShow>
 			<OnUpdate>
 				XckMLAdvancedLUA:OnUpdate()
 				XckMLAdvancedMain_PlayerLabel:SetText(XCKMLA_LabelMainPlayerName)

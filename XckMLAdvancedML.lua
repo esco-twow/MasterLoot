@@ -29,6 +29,7 @@ XckMLAdvancedLUA = {frame = nil,
 	bosslootname = nil, 
 	looterfaction = nil,
 	dropannounced = nil,
+	settings_set = false, -- I actually want this local not part of the settings, so that it always pops up once
 	QualityList = {
 		["Poor"] = 0,
 		["Common"]=1,
@@ -78,6 +79,22 @@ end
 function XckMLAdvancedLUA:Print(str)
 	DEFAULT_CHAT_FRAME:AddMessage(str)
 end
+
+----- HOOK LOOTFRAME TO SEE MORE AT ONCE
+LOOTFRAME_NUMBUTTONS = 10
+
+for i=5,LOOTFRAME_NUMBUTTONS do
+  local f = CreateFrame("LootButton","LootButton"..i,LootFrame,"LootButtonTemplate")
+  f:SetPoint("TOP","LootButton"..i-1,"BOTTOM",0,-4)
+  f.id = i
+	f:Hide()
+end
+
+for i=1,LOOTFRAME_NUMBUTTONS do
+  local n = "LootButton"..i
+  local button = getglobal(n)
+end
+-----
 
 ------
 ------ CORE EVENT TRIGGER FUNCTION
@@ -139,6 +156,11 @@ end
 -- OnEvent Event
 function XckMLAdvancedLUA:OnEvent(self, event)
 	if (event == "LOOT_OPENED") then
+
+		-- over-ride people's position customization
+		LootFrame:ClearAllPoints()
+		LootFrame:SetPoint("CENTER", UIParent, "CENTER", 100, 0)
+
 		self:FillLootTable()
 		self:UpdateSelectionFrame()
 		self:ToggleMLLootFrameButtons()
@@ -263,7 +285,7 @@ function XckMLAdvancedLUA:SaveSettings()
     DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
   end
 
-
+	XckMLAdvancedLUA.settings_set = true
 end
 
 -----
@@ -1241,6 +1263,15 @@ function XckMLAdvancedLUA:OnUpdate()
 	end
 end
 
+function XckMLAdvancedLUA:OnShow()
+	if not XckMLAdvancedLUA.settings_set and not XckMLAdvancedMainSettings:IsShown() then
+		XckMLAdvancedMainSettings:SetPoint("LEFT","LootFrame","RIGHT",-50,0)
+		XckMLAdvancedMainSettings:Show();
+	else
+		XckMLAdvancedMainSettings:Hide();
+	end
+end
+
 -----
 ----- SPEAKING RW/PARTY FUNCTION
 -----
@@ -1393,6 +1424,7 @@ function XckMLAdvancedLUA:InitAllLootFrameFrame()
 	BSettings:SetHighlightTexture(BSettingsHtex)
 	BSettings:SetScript('OnClick', function()
 		if(XckMLAdvancedMainSettings:IsShown() == nil) then
+			XckMLAdvancedMainSettings:SetPoint("LEFT","LootFrame","RIGHT",-50,0)
 			XckMLAdvancedMainSettings:Show();
 			else
 			XckMLAdvancedMainSettings:Hide();
