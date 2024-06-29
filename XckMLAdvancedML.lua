@@ -465,6 +465,7 @@ function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
 			end
 		end
 		self:Speak(output)
+		Screenshot()
 	else
 		self:Print(XCKMLA_NoLootToAnnounce)
 	end
