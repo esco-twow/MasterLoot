@@ -96,6 +96,79 @@ for i=1,LOOTFRAME_NUMBUTTONS do
 end
 -----
 
+----- HOOK LOOTFRAME TO ADD RANDOM OPTION
+function ML_GroupLootDropDown_Initialize()
+	GroupLootDropDown_Initialize()
+	if UIDROPDOWNMENU_MENU_LEVEL == 1 and (GetNumPartyMembers() + GetNumRaidMembers() > 0) then
+		local eligible_players = {}
+		local size_t = 0
+		if GetNumRaidMembers() > 0 then
+			local raid_info = {}
+			for i=1,40 do
+				local name, rank, subgroup, level, class, fileName, zone, online, isDead, role, isML = GetRaidRosterInfo(i);
+				if name then
+					raid_info[name] = { GetRaidRosterInfo(i) }
+				end
+			end
+			for i=1,40 do
+				local name = GetMasterLootCandidate(i)
+				if name then
+					if raid_info[name][8] and raid_info[name][7] == GetRealZoneText() then
+						table.insert(eligible_players,i)
+						size_t = size_t + 1
+					end
+				end
+			end
+		else
+			for i=1,5 do
+				local name = GetMasterLootCandidate(i)
+				if name then
+					table.insert(eligible_players,i)
+					size_t = size_t + 1
+				end
+			end
+		end
+
+		local choice = eligible_players[math.random(1,size_t)]
+
+		local function award(name,ix)
+			GiveMasterLoot(LootFrame.selectedSlot, name);
+			SendChatMessage(GetLootSlotLink(LootFrame.selectedSlot).." randomly awarded to "..GetMasterLootCandidate(ix), XckMLAdvancedLUA:IsInRaidOrParty())
+		end
+
+		-- Random Option
+		local info = {}
+		info.hasArrow = false
+		info.notCheckable = true
+		info.text = "Random"
+		info.textHeight = 12
+		info.value = choice
+		info.func = function ()
+			if ( LootFrame.selectedQuality >= MASTER_LOOT_THREHOLD ) then
+				local orig_ConfirmLootFunc = StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept
+				StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnHide = function ()
+					-- restore original accept function
+					StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept = orig_ConfirmLootFunc
+				end
+				StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept = function (data)
+					award(choice,data)
+				end
+				local dialog = StaticPopup_Show("CONFIRM_LOOT_DISTRIBUTION", ITEM_QUALITY_COLORS[LootFrame.selectedQuality].hex..LootFrame.selectedItemName..FONT_COLOR_CODE_CLOSE, this:GetText());
+				if ( dialog ) then
+					dialog.data = this.value
+				end
+			else
+				award(choice,this.value)
+			end
+			CloseDropDownMenus();
+		end
+		UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)
+	end
+end
+
+UIDropDownMenu_Initialize(GroupLootDropDown, ML_GroupLootDropDown_Initialize, "MENU"); -- add rand option
+-----
+
 ------
 ------ CORE EVENT TRIGGER FUNCTION
 ------
