@@ -129,40 +129,42 @@ function ML_GroupLootDropDown_Initialize()
 			end
 		end
 
-		local choice = eligible_players[math.random(1,size_t)]
+		if size_t > 0 then
+			local choice = eligible_players[math.random(1,size_t)]
 
-		local function award(name,ix)
-			GiveMasterLoot(LootFrame.selectedSlot, name);
-			SendChatMessage(GetLootSlotLink(LootFrame.selectedSlot).." randomly awarded to "..GetMasterLootCandidate(ix), XckMLAdvancedLUA:IsInRaidOrParty())
-		end
-
-		-- Random Option
-		local info = {}
-		info.hasArrow = false
-		info.notCheckable = true
-		info.text = "Random"
-		info.textHeight = 12
-		info.value = choice
-		info.func = function ()
-			if ( LootFrame.selectedQuality >= MASTER_LOOT_THREHOLD ) then
-				local orig_ConfirmLootFunc = StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept
-				StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnHide = function ()
-					-- restore original accept function
-					StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept = orig_ConfirmLootFunc
-				end
-				StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept = function (data)
-					award(choice,data)
-				end
-				local dialog = StaticPopup_Show("CONFIRM_LOOT_DISTRIBUTION", ITEM_QUALITY_COLORS[LootFrame.selectedQuality].hex..LootFrame.selectedItemName..FONT_COLOR_CODE_CLOSE, this:GetText());
-				if ( dialog ) then
-					dialog.data = this.value
-				end
-			else
-				award(choice,this.value)
+			local function award(name,ix)
+				GiveMasterLoot(LootFrame.selectedSlot, name);
+				SendChatMessage(GetLootSlotLink(LootFrame.selectedSlot).." randomly awarded to "..GetMasterLootCandidate(ix), XckMLAdvancedLUA:IsInRaidOrParty())
 			end
-			CloseDropDownMenus();
+
+			-- Random Option
+			local info = {}
+			info.hasArrow = false
+			info.notCheckable = true
+			info.text = "Random"
+			info.textHeight = 12
+			info.value = choice
+			info.func = function ()
+				if ( LootFrame.selectedQuality >= MASTER_LOOT_THREHOLD ) then
+					local orig_ConfirmLootFunc = StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept
+					StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnHide = function ()
+						-- restore original accept function
+						StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept = orig_ConfirmLootFunc
+					end
+					StaticPopupDialogs["CONFIRM_LOOT_DISTRIBUTION"].OnAccept = function (data)
+						award(choice,data)
+					end
+					local dialog = StaticPopup_Show("CONFIRM_LOOT_DISTRIBUTION", ITEM_QUALITY_COLORS[LootFrame.selectedQuality].hex..LootFrame.selectedItemName..FONT_COLOR_CODE_CLOSE, this:GetText());
+					if ( dialog ) then
+						dialog.data = this.value
+					end
+				else
+					award(choice,this.value)
+				end
+				CloseDropDownMenus();
+			end
+			UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)
 		end
-		UIDropDownMenu_AddButton(info, UIDROPDOWNMENU_MENU_LEVEL)
 	end
 end
 
