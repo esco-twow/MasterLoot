@@ -112,7 +112,7 @@ function ML_GroupLootDropDown_Initialize()
 			end
 			for i=1,40 do
 				local name = GetMasterLootCandidate(i)
-				if name then
+				if name and raid_info and raid_info[name] then
 					if raid_info[name][8] and raid_info[name][7] == GetRealZoneText() then
 						table.insert(eligible_players,i)
 						size_t = size_t + 1
