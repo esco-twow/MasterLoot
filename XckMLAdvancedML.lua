@@ -28,6 +28,7 @@ XckMLAdvancedLUA = {frame = nil,
 	LootPrioText = "Start Your Engines",
 	bosslootname = nil, 
 	looterfaction = nil,
+	faketooltip = nil,
 	dropannounced = nil,
 	settings_set = false, -- I actually want this local not part of the settings, so that it always pops up once
 	QualityList = {
@@ -354,13 +355,18 @@ function XckMLAdvancedLUA:SaveSettings()
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700"..XCKMLA_SavedSettingCountdownTimer.."  |cffead454|r|cffff8362" .. XckMLAdvancedLUA.countdownStartTime .. "|r|cffead454")
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."Guild Members found: ".."  |cffead454|r|cffff8362"..G_Count.."|r|cffead454")
 	DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."MasterLooter Faction: ".."  |cffead454|r|cffff8362"..XckMLAdvancedLUA.looterfaction.."|r|cffead454")
-  if not Util.isTableEmpty(XckMLAdvancedLUA.srData) then
-    local t = {}
-    for item,_ in XckMLAdvancedLUA.srData do table.insert(t,item) end
-    DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
-  end
+
+	bossquest:fakeitems(XckMLAdvancedLUA.looterfaction)
+	bossquest:faketooltip()
+
+	if not Util.isTableEmpty(XckMLAdvancedLUA.srData) then
+		local t = {}
+		for item,_ in XckMLAdvancedLUA.srData do table.insert(t,item) end
+		DEFAULT_CHAT_FRAME:AddMessage("|cff20b2aa->|r |cffffd700".."SRs loaded for: ".. table.concat(t,", ") .."|r|cffead454")
+	end
 
 	XckMLAdvancedLUA.settings_set = true
+
 end
 
 -----
@@ -1046,43 +1052,24 @@ function XckMLAdvancedLUA:FillLootTable()
 	
 	local cnt = 1
 	-- print("count".. cnt)
-	if (XckMLAdvancedLUA.looterfaction == "Alliance") then
-		for bossName, items in pairs(boss_quest_alliance) do
-			if(bossName == name) then
-				-- print(name)
-				if type(items) == "table" then
-					for lootcount = 1, getn(items) do
-					fakelink = items[lootcount]
-						if(XckMLAdvancedLUA.bosslootname ~= name) then
-						DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." is on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
-						end
-					MasterLootTable:AddItem(fakelink,cnt)
-					cnt = cnt + 1
-					-- print("count".. cnt)
+	for bossName, items in pairs(boss_quest) do
+		if(bossName == name) then
+			-- print(name)
+			if type(items) == "table" then
+				for lootcount = 1, getn(items) do
+				fakelink = items[lootcount]
+					if(XckMLAdvancedLUA.bosslootname ~= name) then
+					DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." is on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
 					end
+				MasterLootTable:AddItem(fakelink,cnt)
+				cnt = cnt + 1
+				-- print("count".. cnt)
 				end
-				XckMLAdvancedLUA.bosslootname = name
 			end
-		end
-	elseif (XckMLAdvancedLUA.looterfaction == "Horde") then
-		for bossName, items in pairs(boss_quest_horde) do
-			if(bossName == name) then
-				-- print(name)
-				if type(items) == "table" then
-					for lootcount = 1, getn(items) do
-					fakelink = items[lootcount]
-						if(XckMLAdvancedLUA.bosslootname ~= name) then
-						DEFAULT_CHAT_FRAME:AddMessage("|cff4aa832".."Quest item ".. fakelink.. "|cff4aa832".." is on this loot Target! Adding to top of loot list for roll if missing. Winner will need to manually loot from boss.")
-						end
-					MasterLootTable:AddItem(fakelink,cnt)
-					cnt = cnt + 1
-					-- print("count".. cnt)
-					end
-				end
-				XckMLAdvancedLUA.bosslootname = name
-			end
+			XckMLAdvancedLUA.bosslootname = name
 		end
 	end
+
 
 	if MasterLootTable:GetItemCount() >= 1 then
 		for lootIndex = 1, GetNumLootItems() do
@@ -1204,10 +1191,10 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 		local itemLinkLabel = getglobal("XckMLAdvancedMain_CurrentItemLink")
 		itemLinkLabel:SetText(itemLink)
 				
-		for itemIndex = 1, GetNumLootItems() do
+		-- for itemIndex = 1, GetNumLootItems() do
 			-- local itemLink = GetLootSlotLink(itemIndex)
 			-- print(itemLink)
-			if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
+			-- if (itemLink == MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)) then
 				-- print(itemLink)
 				-- local texture, name, quantity, quality, locked = GetLootSlotInfo(itemLink)
 				local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
@@ -1230,13 +1217,17 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 						table.insert(t,entry.attendee)
 						end
 					XckMLAdvancedLUA.LootPrioText = "SR: " .. table.concat(t," / ")
+					
 					elseif(loot_prio[name]) then
 					XckMLAdvancedLUA.LootPrioText = loot_prio[name]
+					
 					else
 					XckMLAdvancedLUA.LootPrioText = name
 				end
-			end
-		end
+
+		-- 	end
+		
+		-- end
 
 		-- print(itemLink)
 
@@ -1245,7 +1236,9 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 		lootPrioEditBox:SetText(XckMLAdvancedLUA.LootPrioText)
 		-- print(XckMLAdvancedLUA.currentItemSelected)
 		-- local itemTexture = MasterLootTable:GetItemTexture(XckMLAdvancedLUA.currentItemSelected)
+		-- if XckMLAdvancedLUA.LootPrioText then
 		XckMLAdvancedLUA.currentItemSelectedtexture = itemLink
+		-- end
 		-- local itemtest = MasterLootTable:GetItemTexture2(itemLink)
 		-- print(itemtest)
 		local _, _, itemIdStr = string.find(itemLink, "item:(%d+)")
