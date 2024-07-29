@@ -11,9 +11,10 @@ bossquest.lua
 lootprio.lua
 lootitems.lua
 specTable.lua
-AutoMasterLooter.xml
 Util.lua
-XckMLAdvancedMainFrame.xml
-XckMLAdvancedSettingsFrame.xml
 languages\LocalizationRaidItemsLib.lua
 XckMLAdvancedML.lua
+AutoMasterLooter.xml
+XckMLAdvancedMainFrame.xml
+XckMLAdvancedSettingsFrame.xml
+
