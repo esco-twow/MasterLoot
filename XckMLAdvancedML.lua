@@ -55,6 +55,7 @@ XckMLAdvancedLUASettings = { ascending = false,
                              enforcelow = true,
                              enforcehigh = true,
                              ignorefixed = true,
+							 allowDupeRoll = true,
 }
 MasterLootTable = { lootCount = 0, loot = {} }
 MasterLootRolls = { rollCount = 0, rolls = {} }
@@ -443,35 +444,42 @@ end
 --Announce All Drop
 function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
 	local itemCount = MasterLootTable:GetItemCount()
+	local foundAny = false
 	if itemCount > 0 then
-		local output = "Boss Loots: "
+		local output = "Boss Loot: "
 		for itemIndex = 1, itemCount do
 			local itemLink = MasterLootTable:GetItemLink(itemIndex)
-			local temp_output = output .. itemLink
+			local _, _, _, quality, _ = GetLootSlotInfo(itemIndex)
+			if (quality >= 3) then
+				foundAny = true
+				local temp_output = output .. itemLink
 
-			-- if only two remain, print them on their own line to avoid singular prints
-			if itemIndex == itemCount - 1 then
-				local last_item = MasterLootTable:GetItemLink(itemCount)
-				temp_output = temp_output .. last_item
+				-- if only two remain, print them on their own line to avoid singular prints
+				if itemIndex == itemCount - 1 then
+					local last_item = MasterLootTable:GetItemLink(itemCount)
+					temp_output = temp_output .. last_item
 
-				if string.len(temp_output) > 255 then
+					if string.len(temp_output) > 255 then
+						-- check if msg is too long
+						self:Speak(output)
+						output = itemLink .. last_item
+					else
+						output = temp_output
+					end
+					break
+				elseif string.len(temp_output) > 255 then
 					-- check if msg is too long
 					self:Speak(output)
-					output = itemLink .. last_item
+					output = itemLink -- too long, add to next round
 				else
 					output = temp_output
 				end
-				break
-			elseif string.len(temp_output) > 255 then
-				-- check if msg is too long
-				self:Speak(output)
-				output = itemLink -- too long, add to next round
-			else
-				output = temp_output
 			end
 		end
-		self:Speak(output)
-		Screenshot()
+		if (foundAny) then
+			self:Speak(output)
+			Screenshot()
+		end
 	else
 		self:Print(XCKMLA_NoLootToAnnounce)
 	end
@@ -639,37 +647,6 @@ function GiveLootToWinner()
 	end
 end
 
----- Random Player Raid
-function XckMLAdvancedLUA:RandomizePlayer()
-	if (getn(MasterLootRolls.rolls) > 0) then
-		StaticPopupDialogs["Confirm_Attrib"].text = XCKMLA_RaidorListRoll
-		StaticPopupDialogs["Confirm_Attrib"].OnAccept = function()
-			XckMLAdvancedLUA:RandomizePlayerInList()
-			return
-		end
-		StaticPopup_Show("Confirm_Attrib")
-	else
-
-		local PlayedIDRandomized = math.random(self:GetNbPlayersRaidParty())
-		MasterLootRolls:AddRoll(UnitName(self:IsInRaidOrParty() .. PlayedIDRandomized), PlayedIDRandomized)
-		if (self:PlayerIsInAParty() and not self:PlayerIsInARaid()) then
-			self:Print(XCKMLA_RandomizerRaidOnly)
-		else
-			self:Speak("[Xckbucl ML Advanced] Player Randomizer --> N°" .. PlayedIDRandomized .. " - " .. UnitName(self:IsInRaidOrParty() .. PlayedIDRandomized))
-		end
-	end
-end
-
----- Random Player on Rolls/Need List
-function XckMLAdvancedLUA:RandomizePlayerInList()
-
-	local PlayedIDRandomized = math.random(getn(MasterLootRolls.rolls))
-	if (self:PlayerIsInAParty() and not self:PlayerIsInARaid()) then
-		self:Print(XCKMLA_RandomizerRaidOnly)
-	else
-		self:Speak("[Xckbucl ML Advanced] Player Randomizer In Player List --> N°" .. PlayedIDRandomized .. " - " .. MasterLootRolls.rolls[PlayedIDRandomized].player)
-	end
-end
 ------
 ------ AutoLoot FUNCTION
 ------
@@ -864,24 +841,28 @@ function XckMLAdvancedLUA:HandlePossibleRoll(message, sender)
 			end
 		end
 		if ((minRoll == "1" or not XckMLAdvancedLUASettings.enforcelow) and
-				(maxRoll == "100" or not XckMLAdvancedLUASettings.enforcehigh) and
+				(maxRoll == "50" or maxRoll == "99" or maxRoll == "100" or not XckMLAdvancedLUASettings.enforcehigh) and
 				(minRoll ~= maxRoll or not XckMLAdvancedLUASettings.ignorefixed)) then
-			MasterLootRolls:AddRoll(player, tonumber(roll))
+			MasterLootRolls:AddRoll(player, tonumber(roll), maxRoll)
 		end
 	end
 end
 
 -- Add Roll to Array Variable
-function MasterLootRolls:AddRoll(player, roll)
-	for rollIndex = 1, self.rollCount do
-		if (self.rolls[rollIndex].player == player) then
-			return
+function MasterLootRolls:AddRoll(player, roll, maxRoll)
+	if (not XckMLAdvancedLUASettings.allowDupeRoll) then
+		for rollIndex = 1, self.rollCount do
+			if (self.rolls[rollIndex].player == player) then
+				self.rolls[rollIndex] = nil
+				self.rollCount = self.rollCount - 1
+			end
 		end
 	end
 	self.rollCount = self.rollCount + 1
 	self.rolls[self.rollCount] = {}
 	self.rolls[self.rollCount].player = player
 	self.rolls[self.rollCount].roll = roll
+	self.rolls[self.rollCount].maxRoll = maxRoll
 
 	self:UpdateTopRoll()
 
@@ -919,6 +900,10 @@ function MasterLootRolls:GetPlayerNameRoll(rollIndex)
 	return self.rolls[rollIndex].player
 end
 
+function MasterLootRolls:GetPlayerMaxRoll(rollIndex)
+	return self.rolls[rollIndex].maxRoll
+end
+
 -- Clear the Roll Data/List
 function MasterLootRolls:ClearRollList()
 	self.rollCount = 0
@@ -944,6 +929,8 @@ function MasterLootRolls:UpdateRollList()
 
 	local lastRollIndex = 0
 	local lastRollValue
+	-- TODO/WIP sort by 100 (MS), 99 (OS), 50 (tmog)
+	-- local lastMaxRoll = 50
 	if (not XckMLAdvancedLUASettings.ascending) then
 		lastRollValue = 1000001 --max /roll is 1,000,000
 	else
@@ -953,6 +940,7 @@ function MasterLootRolls:UpdateRollList()
 	for i = 1, self.rollCount do
 		local highestRollIndex = 0
 		local highestRollValue
+		-- local highestMaxRoll = 50
 		if (not XckMLAdvancedLUASettings.ascending) then
 			highestRollValue = 0
 		else
@@ -962,23 +950,27 @@ function MasterLootRolls:UpdateRollList()
 		-- Reverse for ascending
 		for rollIndex = 1, self.rollCount do
 			local rollValue = self:GetPlayerRoll(rollIndex)
+			-- local maxRoll = tonumber(self:GetPlayerMaxRoll(rollIndex))
 			if ((self:LessThan(rollIndex, rollValue, lastRollIndex, lastRollValue) and not XckMLAdvancedLUASettings.ascending) or
 					(self:GreaterThan(rollIndex, rollValue, lastRollIndex, lastRollValue) and XckMLAdvancedLUASettings.ascending)) then
 				if ((self:GreaterThan(rollIndex, rollValue, highestRollIndex, highestRollValue) and not XckMLAdvancedLUASettings.ascending) or
 						(self:LessThan(rollIndex, rollValue, highestRollIndex, highestRollValue) and XckMLAdvancedLUASettings.ascending)) then
 					highestRollIndex = rollIndex
 					highestRollValue = rollValue
+					-- highestMaxRoll = maxRoll
 				end
 			end
 		end
 		lastRollIndex = highestRollIndex
 		lastRollValue = highestRollValue
+		-- lastMaxRoll = highestMaxRoll
 
 		local buttonName = "PlayerSelectionButton" .. lastRollIndex
 		local rollFrame = getglobal(buttonName) or CreateFrame("Button", buttonName, scrollChild, "PlayerSelectionButtonTemplate")
 		rollFrame:Show()
 
 		local playerName = self:GetPlayerNameRoll(lastRollIndex)
+		local playerMaxRoll = self:GetPlayerMaxRoll(lastRollIndex)
 		local playerNameLabel = getglobal(buttonName .. "_PlayerName")
 		local class, classFileName = UnitClass(XckMLAdvancedLUA:GetRaidIDByName(playerName))
 		local r, g, b = XckMLAdvancedLUA:GetClassColor(classFileName)
@@ -987,28 +979,41 @@ function MasterLootRolls:UpdateRollList()
 
 		local playerRankLabel = getglobal(buttonName .. "_PlayerRank")
 		local playerSpecLabel = getglobal(buttonName .. "_PlayerSpec")
+		local playerRollLabel = getglobal(buttonName .. "_PlayerRoll")
 
-		grank = "Guest"
-		gspec = ""
-
-		for j = 1, GetNumGuildMembers() do 
-			if(guildmembersdb[j].name == playerName) then
-				for key,value in specTable do
-					if string.find(guildmembersdb[j].onote, key) then
-						gspec = value
-					end
+		grank = "<not in guild>"
+		if (guildmembersdb ~= nil) then
+			for j = 1, G_Count do
+				if ((guildmembersdb[j] ~= nil) and (guildmembersdb[j].name == playerName)) then
+					grank = guildmembersdb[j].rank
 				end
-				grank = guildmembersdb[j].rank
 			end
 		end
+		playerRankLabel:SetText(grank)
 
-		if (grank == "Guest") then
-			playerRankLabel:SetTextColor(0, 1, 0.59)
+		gspec = "?"
+		if (playerMaxRoll == "100") then
+			gspec = "MS"
+		elseif (playerMaxRoll == "99") then
+			gspec = "OS"
 		else
-			playerRankLabel:SetTextColor(1, 1, 1)
+			gspec = "Tmog"
 		end
 
-		playerRankLabel:SetText(grank)
+		if (gspec == "MS") then
+			playerSpecLabel:SetTextColor(0.25, 1, 0.25)
+			playerRollLabel:SetTextColor(0.25, 1, 0.25)
+			playerRankLabel:SetTextColor(0.25, 1, 0.25)
+		elseif (gspec == "OS") then
+			playerSpecLabel:SetTextColor(0, 0.5, 1)
+			playerRollLabel:SetTextColor(0, 0.5, 1)
+			playerRankLabel:SetTextColor(0, 0.5, 1)
+		else
+			playerSpecLabel:SetTextColor(0.75, 0.75, 0.75)
+			playerRollLabel:SetTextColor(0.75, 0.75, 0.75)
+			playerRankLabel:SetTextColor(0.75, 0.75, 0.75)
+		end
+
 		playerSpecLabel:SetText(gspec)
 
 		local starTexture = getglobal(buttonName .. "_StarTexture")
@@ -1019,7 +1024,6 @@ function MasterLootRolls:UpdateRollList()
 		end
 
 		local playerRoll = lastRollValue
-		local playerRollLabel = getglobal(buttonName .. "_PlayerRoll")
 		if (XckMLAdvancedLUA.RollorNeed == "Need") then
 			playerRollLabel:SetText("+" .. playerRoll)
 		elseif (XckMLAdvancedLUA.RollorNeed == "Roll") then
@@ -1215,7 +1219,7 @@ function XckMLAdvancedLUA:UpdateCurrentItem()
 			XckMLAdvancedLUA.LootPrioText = loot_prio[name]
 
 		else
-			XckMLAdvancedLUA.LootPrioText = name
+			XckMLAdvancedLUA.LootPrioText = "No SR"
 		end
 
 		-- 	end
@@ -1310,8 +1314,10 @@ function XckMLAdvancedLUA:OnUpdate()
 		local i = self.countdownLastDisplayed - 1
 		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		while (i >= currentCountdownPosition) do
-			if (currentCountdownPosition == firstMessageTime or currentCountdownPosition == secondMessageTime) then
+			if ((currentCountdownPosition == firstMessageTime) or (currentCountdownPosition == secondMessageTime)) then
 				SendChatMessage(itemLink .. " " .. i .. " seconds left to roll", 'Raid')
+			elseif (i < 4 and i > 0) then
+				SendChatMessage(i, 'Raid_Warning')
 			end
 			-- self:Speak(i)
 			i = i - 1
@@ -1584,31 +1590,6 @@ end
 -------
 ------- Guild info
 -------
-function GetGuildMembers()
-	guildmembersdb = {}
-	GCount = GetNumGuildMembers(numTotalMembers)
-	for i = 1, GCount do
-		local name, rank, _, _, class, _, _, onote = GetGuildRosterInfo(i);
-		table.insert(guildmembersdb, { name = name, rank = rank, class = class, onote = onote })
-	end
-	print(GCount)
-	print("Guild Collected")
-end
-
-function RetrieveGuildMember()
-	-- print(GName..)
-	for i = 1, GetNumGuildMembers() do
-		-- if(guildmembersdb[i].name == GName) then
-		if string.find(guildmembersdb[i].onote, "MS:B") then
-			print(guildmembersdb[i].name .. " " .. guildmembersdb[i].rank .. " " .. "Boomkin")
-		end
-		if string.find(guildmembersdb[i].onote, "MS:F") then
-			print(guildmembersdb[i].name .. " " .. guildmembersdb[i].rank .. " " .. "Frost")
-		end
-		-- end
-	end
-	-- return spec
-end
 
 -------
 ------- POP Confirm StaticPopup_Show("Confirm_Attrib")  MasterLootRolls:AddRoll("Xckbucl", "+1")

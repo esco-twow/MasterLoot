@@ -60,9 +60,9 @@ if ( GetLocale() == "frFR" ) then
 	XCKMLA_LabelSettingsPlayerPoor = "Player Trash";
 	XCKMLA_LabelSettingsPlayerRaidsItems = "Player Raids Items";
 	XCKMLA_LabelSettingsMinQuality = "Min Quality Displayed";
-	XCKMLA_LabelSettingsRollorNeed = "Roll/Need Method";
+	XCKMLA_LabelSettingsRollorNeed = "Roll Method";
 	XCKMLA_LabelMainPlayerName = "Player Name";
-	XCKMLA_LabelMainRollNeed = "Roll/Need";
+	XCKMLA_LabelMainRollNeed = "Roll";
 	XCKMLA_ButtonMainGiveAward = "Give to Winner";
 	XCKMLA_ResetRollNeedList = "Rolls/Needs Reseted.";
 	XCKMLA_WelcomeMessage = "Xckbucl Master Loot Advanced|r Made by Xckbucl on K2/Elysium/Lightbringer || |cff49C0C0/xckmla info |rfor more Info|r || |cff49C0C0/xckmla rand |rfor for rand a player in Raid";

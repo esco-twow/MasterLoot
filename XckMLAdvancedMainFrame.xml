@@ -80,7 +80,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Anchors>
 					<Color r="1" g="1" b="1" a="1" />
 				</FontString>
-				<FontString name="$parent_PlayerRank" inherits="GameFontNormalSmall"
+				<FontString name="$parent_PlayerSpec" inherits="GameFontNormalSmall"
 				justifyH="LEFT" text="Alt">
 					<Anchors>
 						<Anchor point="LEFT">
@@ -89,7 +89,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Anchors>
 					<Color r="1" g="1" b="1" a="1" />
 				</FontString>
-				<FontString name="$parent_PlayerSpec" inherits="GameFontNormalSmall"
+				<FontString name="$parent_PlayerRank" inherits="GameFontNormalSmall"
 				justifyH="LEFT" text="Undyingpower">
 					<Anchors>
 						<Anchor point="LEFT">
@@ -200,23 +200,6 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Anchor>
 				</Anchors>
 			</Slider>
-					
-			<!-- <Button name="$parent_RandomizeGuy" inherits="UIPanelButtonTemplate" text="">
-				<NormalTexture file="Interface\Buttons\UI-GroupLoot-Coin-Up"/>
-				<PushedTexture file="Interface\Buttons\UI-GroupLoot-Coin-Down"/>
-				<HighlightTexture file="Interface\Buttons\UI-GroupLoot-Coin-Highlight" alphaMode="ADD"/>
-				<Size><AbsDimension x="22" y="22" /></Size>
-				<Anchors>
-					<Anchor point="CENTER" relativePoint="LEFT" relativeTo="$parent_ResetList">
-						<Offset x="-15" y="-3" />
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						XckMLAdvancedLUA:RandomizePlayer()
-					</OnClick>
-				</Scripts>
-			</Button> -->
 			
 			<Button name="$parent_AnnounceMainSpec" inherits="UIPanelButtonTemplate" text="">
 				<NormalTexture file="Interface\Buttons\UI-GroupLoot-Dice-Up"/>
@@ -310,7 +293,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<Scripts>
 					<OnClick>
 						MasterLootRolls:ClearRollList()
-						XckMLAdvancedLUA:Print("|cfffbb034|r|cffead454Rolls/Needs Reseted.")
+						XckMLAdvancedLUA:Print("|cfffbb034|r|cffead454Rolls reset.")
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -369,7 +352,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<Size><Absdimension x="100" /></Size>
 					<Color r="1" g="1" b="1" a="1" />
 				</FontString>
-				<FontString name="$parent_PlayerLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Rank">
+				<FontString name="$parent_PlayerLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Spec">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativePoint="LEFT" relativeTo="$parent_CurrentItemLink">
 							<Offset x="65" y="-48" />
@@ -378,7 +361,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<Size><Absdimension x="100" /></Size>
 					<Color r="1" g="1" b="1" a="1" />
 				</FontString>
-				<FontString name="$parent_PlayerLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Spec">
+				<FontString name="$parent_PlayerLabel" inherits="GameFontNormalSmall" justifyH="LEFT" text="Rank">
 					<Anchors>
 						<Anchor point="TOPLEFT" relativePoint="LEFT" relativeTo="$parent_CurrentItemLink">
 							<Offset x="115" y="-48" />
@@ -387,7 +370,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<Size><Absdimension x="100" /></Size>
 					<Color r="1" g="1" b="1" a="1" />
 				</FontString>
-				<FontString name="$parent_RollNeed" inherits="GameFontNormalSmall" justifyH="RIGHT" text="Roll/Need">
+				<FontString name="$parent_RollNeed" inherits="GameFontNormalSmall" justifyH="RIGHT" text="Roll">
 					<Anchors>
 						<Anchor point="TOP" relativePoint="TOP" relativeTo="$parent_PlayerLabel" />
 						<Anchor point="RIGHT">

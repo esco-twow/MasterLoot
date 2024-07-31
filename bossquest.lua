@@ -1,4 +1,4 @@
--- These are quest items that once gained by the lootmaster, will no longer show on corpse to loot or aren't shown due to not being on the right faction. You can should comment out the quest items you haven't completed yet. 
+-- These are quest items that once gained by the lootmaster, will no longer show on corpse to loot or aren't shown due to not being on the right faction. You should comment out the quest items you haven't completed yet.
 
 boss_quest_items = {
 	["Kel'Thuzad"] = { "\124cffa335ee\124Hitem:22520:0:0:0:0:0:0:0:0\124h[The Phylactery of Kel'Thuzad]\124h\124r" },
