@@ -1,7 +1,7 @@
 ﻿----- INIT ALL VARIABLES
 XckMLAdvancedLUA = { frame = nil,
                      debugging = false,
-                     countdownRange = 15,
+                     countdownRange = 20,
                      countdownRunning = false,
                      disenchant = nil,
                      ConfirmNinja = nil,
@@ -262,6 +262,7 @@ function XckMLAdvancedLUA:OnEvent(self, event)
 		else
 			XckMLAdvancedMain:Hide()
 		end
+		self:CountdownStop(true)
 	elseif (event == "CHAT_MSG_PARTY" or event == "CHAT_MSG_PARTY_LEADER" or event == "CHAT_MSG_RAID" or event == "CHAT_MSG_RAID_LEADER" or event == "CHAT_MSG_SYSTEM") then
 		local message, sender = arg1, arg2;
 		self:HandlePossibleRoll(message, sender)
@@ -413,16 +414,6 @@ end
 --Call Roll for Current Item
 function XckMLAdvancedLUA:AnnounceItemForNeed(buttonFrame)
 	local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
-	-- link = GetLootSlotLink(XckMLAdvancedLUA.currentItemSelected)
-	-- lootmsg = XckMLAdvancedLUA.LootPrioText
-	-- if(link == "|cff9d9d9d|Hitem:1074:0:0:0|h[Hard Spider Leg Tip]|h|r") then
-	-- 	XckMLAdvancedLUA.LootPrioText = "Hard Spider Leg Tip"
-	-- elseif(link == "|cffffffff|Hitem:1081:0:0:0|h[Crisp Spider Meat]|h|r") then
-	-- 	XckMLAdvancedLUA.LootPrioText = "Crisp Spider Meat"	
-	-- end
-	-- printable = gsub(link, "\124", "\124\124");
-	-- print(printable)
-
 	if (XckMLAdvancedLUA.RollorNeed == "Need") then
 		self:Speak(itemLink .. XCKMLA_CallAnnounce)
 	elseif (XckMLAdvancedLUA.RollorNeed == "Roll") then
@@ -433,12 +424,13 @@ function XckMLAdvancedLUA:AnnounceItemForNeed(buttonFrame)
 		end
 	end
 	XckMLAdvancedLUA.dropannounced = "OpenToRoll"
+
+	-- Auto start countdown
+	if (XckMLAdvancedLUA.RollorNeed == "Roll") then
+		self:CountdownStart()
+	end
 end
 
-
--- if (LootPrioText["LootPrio"]) then
--- 	loothog_chat_rw(LootPrioText["LootPrio"])
--- end
 
 --Announce All Drop
 function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
@@ -478,20 +470,32 @@ function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
 end
 
 --Start CountDown 10sc
-function XckMLAdvancedLUA:CountdownClicked()
+function XckMLAdvancedLUA:CountdownStart()
 	if (XckMLAdvancedLUA.dropannounced ~= "OpenToRoll") then
 		self:Print(XCKMLA_NoDropAnnouncedYet)
 		return
 	end
 
+	self.countdownStartTime = GetTime()
+	local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
+	if (self.countdownRunning) then
+		SendChatMessage(itemLink .. " Timer Restarted", 'Raid')
+		self.countdownLastDisplayed = self.countdownRange - 1
+	else
+		self.countdownRunning = true
+		self.countdownLastDisplayed = self.countdownRange + 1
+	end
+end
+
+--Start CountDown 10sc
+function XckMLAdvancedLUA:CountdownStop(hideMessage)
+	print("CountdownStop")
 	if (self.countdownRunning) then
 		self.countdownRunning = false
 		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
-		SendChatMessage(itemLink .. " Rolling Cancelled", 'Raid')
-	else
-		self.countdownRunning = true
-		self.countdownStartTime = GetTime()
-		self.countdownLastDisplayed = self.countdownRange + 1
+		if (hideMessage == nil) then
+			SendChatMessage(itemLink .. " Timer Cancelled", 'Raid')
+		end
 	end
 end
 
@@ -581,13 +585,13 @@ function XckMLAdvancedLUA:AssignBankClicked(buttonFrame)
 	self:Print(XCKMLA_CANNOTFINDPLAYER .. banker)
 end
 
---Give Loot to Win,er
+--Give Loot to Winner
 function XckMLAdvancedLUA:AwardLootClicked(buttonFrame)
 	if (MasterLootRolls.winningPlayer == nil) then
 		XckMLAdvancedLUA:Print(XCKMLA_SelectPlayerBeforeAttrib)
 	else
 		-- self:Speak(MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)..XCKMLA_PreAttribCountdown..MasterLootRolls.winningPlayer)
-		-- self:CountdownClicked()
+		self:CountdownStop(true)
 		StaticPopupDialogs["Confirm_Attrib"].text = XCKMLA_YWillGiveItem .. MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected) .. " -> |cFFF9c31c[|r|c" .. self:GetHexClassColor(MasterLootRolls.winningPlayer) .. MasterLootRolls.winningPlayer .. "|cFFF9c31c], |r" .. XCKMLA_PressForConfirmAttrib
 		StaticPopupDialogs["Confirm_Attrib"].OnAccept = function()
 			GiveLootToWinner()
@@ -1299,6 +1303,7 @@ end
 
 -- COUNTDOWN FUNCTION CORE
 function XckMLAdvancedLUA:OnUpdate()
+	print("XckMLAdvancedLUA:OnUpdate")
 	if (self.countdownRunning) then
 		local currentCountdownPosition = math.ceil(self.countdownRange - GetTime() + self.countdownStartTime)
 		if (currentCountdownPosition < 0) then
