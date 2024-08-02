@@ -217,8 +217,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				</Scripts>
 			</Button>
 			<Button name="$parent_Countdown" inherits="UIPanelButtonTemplate" text="">
-				<NormalTexture file="Interface\Buttons\UI-RotationLeft-Button-Up"/>
-				<PushedTexture file="Interface\Buttons\UI-RotationLeft-Button-Down"/>
+				<NormalTexture file="Interface\Buttons\CancelButton-Up"/>
+				<PushedTexture file="Interface\Buttons\Cancelbutton-Down"/>
 				<Size><AbsDimension x="25" y="25" /></Size>
 				<Anchors>
 					<Anchor point="CENTER" relativePoint="RIGHT" relativeTo="$parent_AnnounceMainSpec">
@@ -227,7 +227,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						XckMLAdvancedLUA:CountdownClicked()
+						XckMLAdvancedLUA:CountdownStop()
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -386,7 +386,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				XckMLAdvancedLUA:OnShow()
 			</OnShow>
 			<OnUpdate>
-				XckMLAdvancedLUA:OnUpdate()
+			    XckMLAdvancedLUA:OnUpdate()
 				XckMLAdvancedMain_PlayerLabel:SetText(XCKMLA_LabelMainPlayerName)
 				XckMLAdvancedMain_RollNeed:SetText(XCKMLA_LabelMainRollNeed)
 				XckMLAdvancedMain_AwardLoot:SetText(XCKMLA_ButtonMainGiveAward)
