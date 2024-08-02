@@ -498,17 +498,21 @@ function XckMLAdvancedLUA:CountdownStart()
 
 		self.timerFrame = CreateFrame("Frame")
 		self.timerFrame:SetScript("OnUpdate", function()
-			self:CheckCountdown(self)
+			self:CountdownCheck(self)
 		end)
 	end
 end
 
 --Start CountDown 10sc
 function XckMLAdvancedLUA:CountdownStop(hideMessage)
-	print("CountdownStop")
 	if (self.countdownRunning) then
-		DeleteFrame(self.timerFrame)
-		self.timerFrame = nil
+		print("CountdownStop")
+		-- DeleteFrame(self.timerFrame)
+		self.timerFrame:Hide()
+		self.timerFrame:SetParent(nil)
+		self.timerFrame:UnregisterEvent("OnUpdate")
+		self.timerFrame.OnUpdate = function() end
+		-- self.timerFrame = nil
 		self.countdownRunning = false
 		local itemLink = MasterLootTable:GetItemLink(XckMLAdvancedLUA.currentItemSelected)
 		if (hideMessage == nil) then
@@ -1316,10 +1320,11 @@ function MasterLootTable:AddItem(itemLk, slot)
 end
 
 -- COUNTDOWN FUNCTION CORE
-function XckMLAdvancedLUA:CheckCountdown(obj)
-	-- print("XckMLAdvancedLUA:CheckCountdown " .. tostring(obj.countdownRunning))
+function XckMLAdvancedLUA:CountdownCheck(obj)
+	-- print("XckMLAdvancedLUA:CountdownCheck " .. tostring(obj.countdownRunning))
+	-- print("XckMLAdvancedLUA:CountdownCheck")
 	if (obj.countdownRunning) then
-		-- print("XckMLAdvancedLUA:CheckCountdown countdownRunning")
+		print("XckMLAdvancedLUA:CountdownCheck countdownRunning")
 		local currentCountdownPosition = math.ceil(self.countdownRange - GetTime() + self.countdownStartTime)
 		if (currentCountdownPosition < 0) then
 			currentCountdownPosition = 0
