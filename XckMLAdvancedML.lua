@@ -828,7 +828,7 @@ function XckMLAdvancedLUA:HandlePossibleRoll(message, sender)
 			end
 		end
 		if ((minRoll == "1" or not XckMLAdvancedLUASettings.enforcelow) and
-				(maxRoll == "50" or maxRoll == "99" or maxRoll == "100" or not XckMLAdvancedLUASettings.enforcehigh) and
+				(maxRoll == "50" or maxRoll == "99" or maxRoll == "100" or maxRoll == "101" or not XckMLAdvancedLUASettings.enforcehigh) and
 				(minRoll ~= maxRoll or not XckMLAdvancedLUASettings.ignorefixed)) then
 			MasterLootRolls:AddRoll(player, tonumber(roll), maxRoll)
 		end
@@ -979,7 +979,9 @@ function MasterLootRolls:UpdateRollList()
 		playerRankLabel:SetText(grank)
 
 		gspec = "?"
-		if (playerMaxRoll == "100") then
+		if (playerMaxRoll == "101") then
+			gspec = "SR"
+		elseif (playerMaxRoll == "100") then
 			gspec = "MS"
 		elseif (playerMaxRoll == "99") then
 			gspec = "OS"
@@ -987,7 +989,11 @@ function MasterLootRolls:UpdateRollList()
 			gspec = "Tmog"
 		end
 
-		if (gspec == "MS") then
+		if (gspec == "SR") then
+			playerSpecLabel:SetTextColor(1, 0.25, 0.25)
+			playerRollLabel:SetTextColor(1, 0.25, 0.25)
+			playerRankLabel:SetTextColor(1, 0.25, 0.25)
+		elseif (gspec == "MS") then
 			playerSpecLabel:SetTextColor(0.25, 1, 0.25)
 			playerRollLabel:SetTextColor(0.25, 1, 0.25)
 			playerRankLabel:SetTextColor(0.25, 1, 0.25)
