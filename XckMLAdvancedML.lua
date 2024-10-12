@@ -436,50 +436,37 @@ function XckMLAdvancedLUA:AnnounceItemForNeed(buttonFrame)
 	XckMLAdvancedLUA.dropannounced = "OpenToRoll"
 end
 
-
--- if (LootPrioText["LootPrio"]) then
--- 	loothog_chat_rw(LootPrioText["LootPrio"])
--- end
-
 --Announce All Drop
 function XckMLAdvancedLUA:AnnounceLootClicked(buttonFrame)
 	local itemCount = MasterLootTable:GetItemCount()
-	local foundAny = false
 	if itemCount > 0 then
 		local output = "Boss Loot: "
 		for itemIndex = 1, itemCount do
 			local itemLink = MasterLootTable:GetItemLink(itemIndex)
-			local _, _, _, quality, _ = GetLootSlotInfo(itemIndex)
-			if (quality >= 3) then
-				foundAny = true
-				local temp_output = output .. itemLink
+			local temp_output = output .. itemLink
 
-				-- if only two remain, print them on their own line to avoid singular prints
-				if itemIndex == itemCount - 1 then
-					local last_item = MasterLootTable:GetItemLink(itemCount)
-					temp_output = temp_output .. last_item
+			-- if only two remain, print them on their own line to avoid singular prints
+			if itemIndex == itemCount - 1 then
+				local last_item = MasterLootTable:GetItemLink(itemCount)
+				temp_output = temp_output .. last_item
 
-					if string.len(temp_output) > 255 then
-						-- check if msg is too long
-						self:Speak(output)
-						output = itemLink .. last_item
-					else
-						output = temp_output
-					end
-					break
-				elseif string.len(temp_output) > 255 then
+				if string.len(temp_output) > 255 then
 					-- check if msg is too long
 					self:Speak(output)
-					output = itemLink -- too long, add to next round
+					output = itemLink .. last_item
 				else
 					output = temp_output
 				end
+				break
+			elseif string.len(temp_output) > 255 then
+				-- check if msg is too long
+				self:Speak(output)
+				output = itemLink -- too long, add to next round
+			else
+				output = temp_output
 			end
 		end
-		if (foundAny) then
-			self:Speak(output)
-			Screenshot()
-		end
+		self:Speak(output)
 	else
 		self:Print(XCKMLA_NoLootToAnnounce)
 	end
