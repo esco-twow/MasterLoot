@@ -828,7 +828,7 @@ function XckMLAdvancedLUA:HandlePossibleRoll(message, sender)
 			end
 		end
 		if ((minRoll == "1" or not XckMLAdvancedLUASettings.enforcelow) and
-				(maxRoll == "50" or maxRoll == "99" or maxRoll == "100" or maxRoll == "101" or not XckMLAdvancedLUASettings.enforcehigh) and
+				(maxRoll == "50" or maxRoll == "69" or maxRoll == "99" or maxRoll == "100" or maxRoll == "101" or not XckMLAdvancedLUASettings.enforcehigh) and
 				(minRoll ~= maxRoll or not XckMLAdvancedLUASettings.ignorefixed)) then
 			MasterLootRolls:AddRoll(player, tonumber(roll), maxRoll)
 		end
